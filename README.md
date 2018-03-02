@@ -1,7 +1,7 @@
 # EasyDatabaseCompare
-A simple database time level data changes comparison tool
+A simple database time level snapshot data changes comparison tool
 
-Database schema should not change
+Database schema should not changed
 
 Accept:
 
