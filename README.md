@@ -1,5 +1,5 @@
 # EasyDatabaseCompare
-A simple time level dataBase snapShot comparison tool
+A simple time level database snapshot comparison tool
 
 Database schema should not changed
 
@@ -17,7 +17,3 @@ How to use
 Sample Sql server connection string:
 
 `Provider=SQLOLEDB.1;Server=127.0.0.1;Database=dbName;User Id=uid;Password=pwd`
-
-####Tag
---------------------
-Time Level DataBase SnapShot Compare
