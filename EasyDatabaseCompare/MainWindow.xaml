@@ -6,138 +6,144 @@
         xmlns:local="clr-namespace:EasyDatabaseCompare"
         mc:Ignorable="d"
         Title="MainWindow">
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded" SourceName="pro1"/>
-    </Window.Triggers>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid Grid.ColumnSpan="2">
-            <Label Content="OLEDB Connection String" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="1"/>
-            <TextBox x:Name="connStr" VerticalAlignment="Top" Margin="148.503,0,137,0"/>
-            <Button x:Name="checkConn" Content="Check" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Click="checkConn_Click" Margin="0,0,77,0"/>
-            <ToggleButton x:Name="showFilter" Content="↓ Filter ↓" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Margin="0,0,17,0" IsEnabled="False"/>
-            <Button x:Name="reset" HorizontalAlignment="Right" VerticalAlignment="Top" Width="17" Padding="0" Margin="0" Height="17.24" Click="reset_Click">
-                <Button.Content>
-                    <Path Width="15" Height="15" Stroke="Black" StrokeThickness="2" Margin="0,1,0,0">
-                        <Path.Data>
-                            M7.5,3
-                            A4.5,4.5 0 1 0 12,7.5
-                            M7.5,3 
-                            L7.5,4
-                            L9,3 
-                            L7.5,2
-                            L7.5,3
-                        </Path.Data>
-                    </Path>
-                </Button.Content>
-            </Button>
-            <!--Visibility="Collapsed"-->
-            <Popup x:Name="filterPopup" Width="200" Height="300" PopupAnimation="Slide" StaysOpen="False" Placement="Relative" 
-                   IsOpen="{Binding IsChecked, ElementName=showFilter}"
-                   PlacementTarget="{Binding ElementName=showFilter}">
-                <Grid Background="White">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <CheckBox x:Name="isBlackList" HorizontalAlignment="Left" Padding="1,1,0,0" Margin="0" VerticalContentAlignment="Stretch">Black List Mode</CheckBox>
-                    <TextBox x:Name="filterStr" TextChanged="filterStr_TextChanged" HorizontalAlignment="Right" Width="87.805">
-                        <TextBox.Style>
-                            <Style TargetType="{x:Type TextBox}">
-                                <Style.Triggers>
-                                    <MultiTrigger>
-                                        <MultiTrigger.Conditions>
-                                            <Condition Property="IsFocused" Value="False"/>
-                                            <Condition Property="Text" Value=""/>
-                                        </MultiTrigger.Conditions>
-                                        <Setter Property="Background">
-                                            <Setter.Value>
-                                                <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None" ViewboxUnits="RelativeToBoundingBox">
-                                                    <VisualBrush.Visual>
-                                                        <TextBlock Padding="2,0" Foreground="Silver">Filter</TextBlock>
-                                                    </VisualBrush.Visual>
-                                                </VisualBrush>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </MultiTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <ListBox Grid.Row="1" x:Name="filterTableList" SelectionMode="Multiple" SelectionChanged="filterTableList_SelectionChanged"/>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ControlResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <local:TopMsg x:Name="topMsg" Template="{StaticResource topMsgTemp}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Grid.ColumnSpan="2">
+                <Grid Margin="0,0,137,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="17"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Triggers>
+                        <EventTrigger SourceName="changeMode" RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard FillBehavior="Stop">
+                                    <ThicknessAnimation From="0" To="0,-17,0,0" Storyboard.TargetName="connStrGrid" Storyboard.TargetProperty="Margin" Duration="0:0:0.5">
+                                        <ThicknessAnimation.EasingFunction>
+                                            <QuinticEase EasingMode="EaseOut"/>
+                                        </ThicknessAnimation.EasingFunction>
+                                    </ThicknessAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger SourceName="changeMode" RoutedEvent="ToggleButton.Checked">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard FillBehavior="HoldEnd">
+                                        <ThicknessAnimation From="0,-17,0,0" To="0" Storyboard.TargetName="connStrGrid" Storyboard.TargetProperty="Margin" Duration="0:0:0.5">
+                                            <ThicknessAnimation.EasingFunction>
+                                                <QuinticEase EasingMode="EaseOut"/>
+                                            </ThicknessAnimation.EasingFunction>
+                                        </ThicknessAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </Grid.Triggers>
+                    <Grid>
+                        <Label Content="Database Type" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFACACAC" BorderThickness="1,1,0,1"/>
+                        <ComboBox x:Name="dbType" ItemsSource="{Binding SupportedDbList, ElementName=window}" SelectedIndex="0" IsSynchronizedWithCurrentItem="True" Padding="3,1" Margin="89.79,0,0,0" SelectionChanged="dbType_SelectionChanged"/>
+                    </Grid>
+
+                    <Grid x:Name="fieldsGrid" Grid.Column="1">
+                        <!--<Grid Grid.Column="1">
+                            <Label Content="Data Server" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
+                            <TextBox x:Name="dbServer" Margin="71.44,0,0,0"/>
+                        </Grid>
+                        <Grid Grid.Column="2">
+                            <Label Content="Data Source" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
+                            <TextBox x:Name="dbSource" Margin="74.787,0,0,0"/>
+                        </Grid>
+                        <Grid Grid.Column="3">
+                            <Label Content="User ID" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
+                            <TextBox x:Name="dbUid" Margin="47.123,0,0,0"/>
+                        </Grid>
+                        <Grid Grid.Column="4">
+                            <Label Content="PassWord" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
+                            <TextBox x:Name="dbPwd" Margin="62.183,0,0,0"/>
+                        </Grid>-->
+                    </Grid>
+                    <Grid x:Name="connStrGrid" Grid.Column="1" Grid.ColumnSpan="4" Margin="0,-17,0,0" VerticalAlignment="Top">
+                        <Label Content="Connection String" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFACACAC" BorderThickness="1,1,0,1" Background="White"/>
+                        <TextBox x:Name="connStr" VerticalAlignment="Top" Margin="108.75,0,0,0" Height="17"/>
+                    </Grid>
+                    <ToggleButton x:Name="changeMode" Grid.Column="5" Content="{StaticResource dblArrow}" Checked="changeMode_Checked" Unchecked="changeMode_Unchecked"/>
+
                 </Grid>
-            </Popup>
-        </Grid>
-        <Button x:Name="get1" Grid.Row="1" Content="↓ Get Current ↓" Click="get1_Click" IsEnabled="False"/>
-        <Button x:Name="get2" Grid.Row="1" Grid.Column="1" Content="↓ Get Current ↓" Click="get2_Click" IsEnabled="False"/>
-        <Rectangle x:Name="pro1" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe1}" >
-            <Rectangle.LayoutTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleX="{Binding QueryProcess1, ElementName=window}"/>
-                </TransformGroup>
-            </Rectangle.LayoutTransform>
-        </Rectangle>
-        <Rectangle x:Name="pro2" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe2}" Grid.Column="1">
-            <Rectangle.LayoutTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleX="{Binding QueryProcess2, ElementName=window}"/>
-                </TransformGroup>
-            </Rectangle.LayoutTransform>
-        </Rectangle>
-        <TextBlock x:Name="queryRe1" Text="No Data" Grid.Row="2" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
-        <TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" TextAlignment="Center">
-            <TextBlock.Background>
-                <VisualBrush Stretch="None" AlignmentX="Left">
-                    <VisualBrush.Visual>
-                        <TextBlock Foreground="Silver" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                            <Span BaselineAlignment="Center"><Path x:Name="p" Stroke="Silver" Fill="Silver" StrokeThickness="4" >
-                                <Path.Data>
-                                    <GeometryGroup>
-                                        <PathGeometry>
-                                            M30,3
-                                            L6,3
-                                            L6,6
-                                            L0,3
-                                            L6,0
-                                            L6,3
-                                        </PathGeometry>
-                                    </GeometryGroup>
-                                </Path.Data>
-                            </Path>
-                            </Span>
-                           Click move to left
-                        </TextBlock>
-                    </VisualBrush.Visual>
-                </VisualBrush>
-            </TextBlock.Background>
-        </TextBlock>
-        <!--<TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" Background="{x:Null}" TextAlignment="Center">
+                <Button x:Name="checkConn" Content="Check" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Click="checkConn_Click" Margin="0,0,77,0" Grid.Column="1" Height="17"/>
+                <ToggleButton x:Name="showFilter" Content="↓ Filter ↓" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Margin="0,0,17,0" IsEnabled="False" Grid.Column="1" Height="17"/>
+                <Button x:Name="reset" HorizontalAlignment="Right" VerticalAlignment="Top" Width="17" Padding="0" Margin="0" Height="17" Click="reset_Click" Grid.Column="1" Content="{StaticResource resetArrow}"/>
+
+                <!--Visibility="Collapsed"-->
+                <Popup x:Name="filterPopup" PopupAnimation="Slide" StaysOpen="False" Placement="Relative" 
+                   IsOpen="{Binding IsChecked, ElementName=showFilter}"
+                   PlacementTarget="{Binding ElementName=showFilter}" Width="196" MaxHeight="400">
+                    <Grid Background="White">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <CheckBox x:Name="isBlackList" HorizontalAlignment="Left" Padding="1,1,0,0" Margin="0" VerticalContentAlignment="Stretch">Black List Mode</CheckBox>
+                        <TextBox x:Name="filterStr" TextChanged="filterStr_TextChanged" HorizontalAlignment="Right" Width="87.805" Style="{StaticResource filterTBoxStyle}"/>
+                        <ListBox Grid.Row="1" x:Name="filterTableList" SelectionMode="Multiple" SelectionChanged="filterTableList_SelectionChanged"/>
+                    </Grid>
+                </Popup>
+            </Grid>
+            <Button x:Name="get1" Grid.Row="1" Content="↓ Get Current ↓" Click="get1_Click" IsEnabled="False"/>
+            <Button x:Name="get2" Grid.Row="1" Grid.Column="1" Content="↓ Get Current ↓" Click="get2_Click" IsEnabled="False"/>
+            <Rectangle x:Name="pro1" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe1}" >
+                <Rectangle.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="{Binding QueryProcess1, ElementName=window}"/>
+                    </TransformGroup>
+                </Rectangle.LayoutTransform>
+            </Rectangle>
+            <Rectangle x:Name="pro2" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe2}" Grid.Column="1">
+                <Rectangle.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="{Binding QueryProcess2, ElementName=window}"/>
+                    </TransformGroup>
+                </Rectangle.LayoutTransform>
+            </Rectangle>
+            <TextBlock x:Name="queryRe1" Text="No Data" Grid.Row="2" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
+            <TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" TextAlignment="Center" Background="{StaticResource click2LeftBgBrush}"/>
+            <!--<TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" Background="{x:Null}" TextAlignment="Center">
             <Hyperlink Style="{x:Null}" TextDecorations="{x:Null}"><Run Foreground="Red">123</Run></Hyperlink>
             <Span>123</Span>
             <Run>123</Run>
         </TextBlock>-->
-        <Button x:Name="btnComp" Grid.Row="3" Grid.ColumnSpan="2" Content="↓ Compare ↓" Click="btnComp_Click" IsEnabled="False"/>
-        <Grid Grid.Row="4" Grid.ColumnSpan="2">
-            <Rectangle x:Name="compPro" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=compRe}" >
-                <Rectangle.LayoutTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding CompareProcess, ElementName=window}"/>
-                    </TransformGroup>
-                </Rectangle.LayoutTransform>
-            </Rectangle>
-            <TextBlock x:Name="compReState" Text="Not Start Compare" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
+            <Button x:Name="btnComp" Grid.Row="3" Grid.ColumnSpan="2" Content="↓ Compare ↓" Click="btnComp_Click" IsEnabled="False"/>
+            <Grid Grid.Row="4" Grid.ColumnSpan="2">
+                <Rectangle x:Name="compPro" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=compRe}" >
+                    <Rectangle.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding CompareProcess, ElementName=window}"/>
+                        </TransformGroup>
+                    </Rectangle.LayoutTransform>
+                </Rectangle>
+                <TextBlock x:Name="compReState" Text="Not Start Compare" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
+            </Grid>
+            <ListBox x:Name="compRe" Grid.Row="5" Grid.ColumnSpan="2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0" />
         </Grid>
-        <ListBox x:Name="compRe" Grid.Row="5" Grid.ColumnSpan="2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0" />
-    </Grid>
+    </local:TopMsg>
 </Window>

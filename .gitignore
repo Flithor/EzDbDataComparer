@@ -6,3 +6,5 @@
 /EasyDatabaseCompare/bin
 /.vs
 /packages
+/DataAccessLib/obj
+/DataAccessLib/bin

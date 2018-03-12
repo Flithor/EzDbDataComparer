@@ -10,9 +10,9 @@ namespace EasyDatabaseCompare
     public class DatabaseChangeContent
     {
         public string TableName { get; internal set; }
-        public IEnumerable<UpdatedData> UpdatedDatas { get; internal set; }
-        public IEnumerable<InsertedData> InsertedDatas { get; internal set; }
-        public IEnumerable<DeletedData> DeletedDatas { get; internal set; }
+        public UpdatedData[] UpdatedDatas { get; internal set; }
+        public InsertedData[] InsertedDatas { get; internal set; }
+        public DeletedData[] DeletedDatas { get; internal set; }
     }
     public class UpdatedField
     {

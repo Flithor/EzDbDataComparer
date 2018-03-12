@@ -7,7 +7,27 @@
              HorizontalContentAlignment="Stretch"
              MaxHeight="200" 
              mc:Ignorable="d" Padding="0">
-    <Expander x:Name="firstExpander" BorderThickness="0">
+    <Border BorderThickness="1" BorderBrush="#FF5B85D2">
+        <StackPanel>
+            <Label Content="{Binding TableName, ElementName=listBoxItem}"/>
+            <Expander x:Name="eUpdate" BorderThickness="0" Header="Update Datas">
+                <Expander.Content>
+                    <DataGrid x:Name="update" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True"/>
+                </Expander.Content>
+            </Expander>
+            <Expander x:Name="eInsert" BorderThickness="0" Header="Insert Datas">
+                <Expander.Content>
+                    <DataGrid x:Name="insert" Grid.Column="1" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" BorderThickness="0,1,1,1"/>
+                </Expander.Content>
+            </Expander>
+            <Expander x:Name="eDelete" BorderThickness="0" Header="Delete Datas">
+                <Expander.Content>
+                    <DataGrid x:Name="delete" Grid.Column="2" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" BorderThickness="0,1,1,1"/>
+                </Expander.Content>
+            </Expander>
+        </StackPanel>
+    </Border>
+    <!--<Expander x:Name="firstExpander" BorderThickness="0">
         <Expander.Header>
             <TextBlock Text="{Binding DataContext.TableName, ElementName=listBoxItem, Mode=OneTime}"/>
         </Expander.Header>
@@ -18,5 +38,5 @@
                 <DataGrid x:Name="delete" Grid.Column="2" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" BorderThickness="0,1,1,1"/>
             </StackPanel>
         </Expander.Content>
-    </Expander>
+    </Expander>-->
 </ListBoxItem>
