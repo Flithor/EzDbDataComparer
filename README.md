@@ -7,8 +7,9 @@ Accept:
 
 |Database Type|Version|Accept State|
 |-|-|-|
-|MicroSoft Sql Server|2000|OK|
-|MicroSoft Access|All|No Query|
+|MicroSoft Sql Server|All|OK|
+|MicroSoft Access|All|OK|
+|MySQL|All|OK|
 
 How to use
 -----------------------
