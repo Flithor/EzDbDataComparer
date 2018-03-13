@@ -1,5 +1,7 @@
 # EasyDatabaseCompare
-A simple time level database snapshot comparison tool
+A simple database 2 time snapshot comparison tool
+
+Easy to find target database data changing!
 
 Database schema should not changed
 
