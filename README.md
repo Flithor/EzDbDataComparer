@@ -17,12 +17,10 @@ How to use
 -----------------------
 ![](https://github.com/Flithor/EasyDatabaseCompare/blob/master/image.png)
 
-Sample Sql server connection string:
-
-`Provider=SQLOLEDB.1;Server=127.0.0.1;Database=dbName;User Id=uid;Password=pwd`
-
 Special Note
 ------------------------
 This project is my practice & learn various design patterns project
+
 If possible, please try to use design pattern to extend it
+
 If not, it does not matter
