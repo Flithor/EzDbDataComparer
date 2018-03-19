@@ -15,7 +15,7 @@ Accept:
 
 How to use
 -----------------------
-![](https://github.com/Flithor/EasyDatabaseCompare/blob/master/image.png)
+![](https://github.com/Flithor/EasyDatabaseCompare/blob/master/img.png)
 
 Special Note
 ------------------------
