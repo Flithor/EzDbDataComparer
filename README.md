@@ -12,6 +12,7 @@ Accept:
 |MicroSoft Sql Server|All|OK|
 |MicroSoft Access|All|OK|
 |MySQL|All|OK|
+|SQLite|After SQLite3|OK|
 
 How to use
 -----------------------
