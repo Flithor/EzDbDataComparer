@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using static DataAccessLib.DataAccessBase;
 
 namespace DataAccessLib
 {
@@ -28,42 +26,40 @@ namespace DataAccessLib
         internal abstract string SetTimeOut(string connStr);
         internal abstract bool CheckConnection();
 
-        public abstract IEnumerable<string> QueryAllTableName();
+        public abstract string[] QueryAllTableName();
 
-        public abstract DataSet QueryTables(IEnumerable<string> TableNames, bool withSchma = true, Action processCallBack = null);
+        public abstract DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null);
     }
 
     public class DataAccessFactory
     {
         public static DataAccessBase Create(string dbType, string connstr)
         {
-            Type t = GetDBType(dbType);
+            Type t = GetDbType(dbType);
             return (DataAccessBase)Activator.CreateInstance(t, connstr);
         }
         public static DataAccessBase Create(string dbType, params string[] fields)
         {
-            Type t = GetDBType(dbType);
+            var t = GetDbType(dbType);
             return (DataAccessBase)Activator.CreateInstance(t, fields);
         }
 
-        private static Type GetDBType(string dbType)
+        private static Type GetDbType(string dbType)
         {
             var t = GetDbTypes().Single(dbt => TrimTypeName(dbt.Name).Equals(dbType, StringComparison.OrdinalIgnoreCase));
-            if(t == null)
+            if (t == null)
                 throw new ArgumentException($"{nameof(dbType)}: {dbType}");
-            if(!t.IsSubclassOf(typeof(DataAccessBase)))
+            if (!t.IsSubclassOf(typeof(DataAccessBase)))
                 throw new Exception("bug");
             return t;
         }
 
         public static string[] DbTypes = GetDbTypesString().ToArray();
 
-        public static string[] GetDBTypeConnectionFields(string dbType)
+        public static string[] GetDbTypeConnectionFields(string dbType)
         {
-            Type t = GetDBType(dbType);
-            var constructors = t.GetConstructors();
-            var targetConstructor = constructors.Where(c => c.GetParameters().Length > 1).First();
-            return targetConstructor.GetParameters().Select(para => para.Name).ToArray();
+            var t = GetDbType(dbType);
+            return t.GetConstructors().First(c => c.GetParameters().Length > 1)?.GetParameters().Select(para => para.Name.Replace('_',' ')).ToArray();
         }
 
         private static IEnumerable<Type> GetDbTypes()

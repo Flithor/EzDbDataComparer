@@ -4,30 +4,51 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EasyDatabaseCompare"
+             BorderThickness="1" BorderBrush="#FF5B85D2"
              HorizontalContentAlignment="Stretch"
-             MaxHeight="200" 
-             mc:Ignorable="d" Padding="0">
-    <Border BorderThickness="1" BorderBrush="#FF5B85D2">
-        <StackPanel>
-            <Label Content="{Binding TableName, ElementName=listBoxItem}"/>
-            <Expander x:Name="eUpdate" BorderThickness="0" Header="Update Datas">
-                <Expander.Content>
-                    <DataGrid x:Name="update" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True"/>
-                </Expander.Content>
-            </Expander>
-            <Expander x:Name="eInsert" BorderThickness="0" Header="Insert Datas">
-                <Expander.Content>
-                    <DataGrid x:Name="insert" Grid.Column="1" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" BorderThickness="0,1,1,1"/>
-                </Expander.Content>
-            </Expander>
-            <Expander x:Name="eDelete" BorderThickness="0" Header="Delete Datas">
-                <Expander.Content>
-                    <DataGrid x:Name="delete" Grid.Column="2" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" BorderThickness="0,1,1,1"/>
-                </Expander.Content>
-            </Expander>
-        </StackPanel>
-    </Border>
-    <!--<Expander x:Name="firstExpander" BorderThickness="0">
+             MaxHeight="400" 
+             mc:Ignorable="d" Padding="0" UseLayoutRounding="True" d:DesignWidth="187.333">
+    <ListBoxItem.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ControlResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </ListBoxItem.Resources>
+    <Grid UseLayoutRounding="True">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid UseLayoutRounding="True">
+            <TextBlock Background="#7F569CD6" Padding="5,2,0,2" UseLayoutRounding="True">
+                <Hyperlink x:Name="copyTName" Foreground="{Binding Foreground}" TextDecorations="{x:Null}" Click="copyTName_Click">
+                    <Run Text="{Binding TableName, ElementName=listBoxItem}"/>
+                </Hyperlink>
+            </TextBlock>
+            <Button x:Name="oData" Content="Old Data" HorizontalAlignment="Right" Margin="0,0,60.467,0" UseLayoutRounding="True" Click="oData_Click"/>
+            <Button x:Name="nData" Content="New Data" HorizontalAlignment="Right" UseLayoutRounding="True" Click="nData_Click"/>
+        </Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" UseLayoutRounding="True">
+            <StackPanel UseLayoutRounding="True">
+                <Expander x:Name="eUpdate" BorderThickness="0" Header="Update Datas" UseLayoutRounding="True">
+                    <Expander.Content>
+                        <DataGrid x:Name="update" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" ItemsSource="{Binding}" UseLayoutRounding="True"/>
+                    </Expander.Content>
+                </Expander>
+                <Expander x:Name="eInsert" BorderThickness="0" Header="Insert Datas" UseLayoutRounding="True">
+                    <Expander.Content>
+                        <DataGrid x:Name="insert" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" ItemsSource="{Binding}" UseLayoutRounding="True"/>
+                    </Expander.Content>
+                </Expander>
+                <Expander x:Name="eDelete" BorderThickness="0" Header="Delete Datas" UseLayoutRounding="True">
+                    <Expander.Content>
+                        <DataGrid x:Name="delete" MinHeight="100" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False" HeadersVisibility="Column" IsReadOnly="True" ItemsSource="{Binding}" UseLayoutRounding="True"/>
+                    </Expander.Content>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+        <!--<Expander x:Name="firstExpander" BorderThickness="0">
         <Expander.Header>
             <TextBlock Text="{Binding DataContext.TableName, ElementName=listBoxItem, Mode=OneTime}"/>
         </Expander.Header>
@@ -39,4 +60,5 @@
             </StackPanel>
         </Expander.Content>
     </Expander>-->
+    </Grid>
 </ListBoxItem>

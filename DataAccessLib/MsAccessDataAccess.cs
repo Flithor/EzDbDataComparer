@@ -5,10 +5,10 @@ using System.Data.OleDb;
 
 namespace DataAccessLib
 {
-    sealed class MsAccessDataAccess : DataAccessBase
+    internal sealed class MsAccessDataAccess : DataAccessBase
     {
         public MsAccessDataAccess(string connStr) : base(connStr) { }
-        public MsAccessDataAccess(string DataSource, string UserID = "Admin", string Password = "") : base(DataSource, UserID, Password) { }
+        public MsAccessDataAccess(string Data_Source, string UserID, string Password) : base(Data_Source, UserID, Password) { }
         internal override string BuildConnectionString(params string[] fields)
         {
             return $"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={fields[0]};User ID={fields[1]};Jet OLEDB:Database Password={fields[2]}";
@@ -24,7 +24,7 @@ namespace DataAccessLib
         }
         internal override bool CheckConnection()
         {
-            using(var conn = new OleDbConnection(ConnectionString))
+            using (var conn = new OleDbConnection(ConnectionString))
             {
                 var t = System.Threading.Tasks.Task.Factory.StartNew(() =>
                 {
@@ -33,31 +33,31 @@ namespace DataAccessLib
                         conn.Open();
                         return null;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         return ex;
                     }
                 });
                 t.Wait(1000);
-                if(!t.IsCompleted)
+                if (!t.IsCompleted)
                     throw new Exception("connection time out");
-                if(conn.State == ConnectionState.Open)
+                if (conn.State == ConnectionState.Open)
                     return true;
-                if(t.Result != null)
+                if (t.Result != null)
                     throw t.Result;
                 return false;
             }
         }
 
-        public override DataSet QueryTables(IEnumerable<string> TableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
         {
             var d = new DataSet();
-            using(var conn = new OleDbConnection(ConnectionString))
+            using (var conn = new OleDbConnection(ConnectionString))
             {
                 conn.Open();
-                foreach(var tableName in TableNames)
+                foreach (var tableName in tableNames)
                 {
-                    using(var adapter = new OleDbDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new OleDbDataAdapter($"SELECT * FROM {tableName}", conn))
                     {
 
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
@@ -69,10 +69,10 @@ namespace DataAccessLib
             return d;
         }
 
-        public override IEnumerable<string> QueryAllTableName()
+        public override string[] QueryAllTableName()
         {
-            DataTable dt = null;
-            using(var conn = new OleDbConnection(ConnectionString))
+            DataTable dt;
+            using (var conn = new OleDbConnection(ConnectionString))
             {
                 // c:\test\test.mdb
                 // We only want user tables, not system tables
@@ -85,10 +85,10 @@ namespace DataAccessLib
                 dt = conn.GetSchema("Tables", restrictions);
             }
 
-            List<string> tNames = new List<string>();
-            for(int i = 0; i < dt.Rows.Count; i++)
+            var tNames = new List<string>();
+            for (var i = 0; i < dt.Rows.Count; i++)
                 tNames.Add(dt.Rows[i][2].ToString());
-            return tNames;
+            return tNames.ToArray();
         }
 
     }

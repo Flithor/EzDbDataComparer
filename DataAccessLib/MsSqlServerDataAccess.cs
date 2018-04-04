@@ -1,14 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 
 namespace DataAccessLib
 {
-    sealed class MsSqlServerDataAccess : DataAccessBase
+    internal sealed class MsSqlServerDataAccess : DataAccessBase
     {
         public MsSqlServerDataAccess(string connStr) : base(connStr) { }
         public MsSqlServerDataAccess(string Server, string Database, string UserID, string Password) : base(Server, Database, UserID, Password) { }
@@ -19,14 +16,13 @@ namespace DataAccessLib
 
         internal override string SetTimeOut(string connStr)
         {
-            var sb = new SqlConnectionStringBuilder(connStr);
-            sb.ConnectTimeout = 5;
+            var sb = new SqlConnectionStringBuilder(connStr) { ConnectTimeout = 5 };
             return sb.ToString();
 
         }
         internal override bool CheckConnection()
         {
-            using(var conn = new SqlConnection(base.ConnectionString))
+            using (var conn = new SqlConnection(ConnectionString))
             {
                 var t = System.Threading.Tasks.Task.Factory.StartNew(() =>
                 {
@@ -35,31 +31,31 @@ namespace DataAccessLib
                         conn.Open();
                         return null;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         return ex;
                     }
                 });
                 t.Wait(1000);
-                if(!t.IsCompleted)
+                if (!t.IsCompleted)
                     throw new Exception("connection time out");
-                if(conn.State == ConnectionState.Open)
+                if (conn.State == ConnectionState.Open)
                     return true;
-                if(t.Result != null)
+                if (t.Result != null)
                     throw t.Result;
                 return false;
             }
         }
 
-        public override DataSet QueryTables(IEnumerable<string> TableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
         {
             var d = new DataSet();
-            using(var conn = new SqlConnection(ConnectionString))
+            using (var conn = new SqlConnection(ConnectionString))
             {
                 conn.Open();
-                foreach(var tableName in TableNames)
+                foreach (var tableName in tableNames)
                 {
-                    using(var adapter = new SqlDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new SqlDataAdapter($"SELECT * FROM {tableName}", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
                         adapter.Fill(d, tableName);
@@ -70,18 +66,17 @@ namespace DataAccessLib
             return d;
         }
 
-        public override IEnumerable<string> QueryAllTableName()
+        public override string[] QueryAllTableName()
         {
-            var d = new DataSet();
-            using(var conn = new SqlConnection(ConnectionString))
+            using (var conn = new SqlConnection(ConnectionString))
             {
                 conn.Open();
-                using(var reader = new SqlCommand("SELECT name FROM sysobjects WHERE type='U' ORDER BY name", conn).ExecuteReader())
+                using (var reader = new SqlCommand("SELECT name FROM sysobjects WHERE type='U' ORDER BY name", conn).ExecuteReader())
                 {
                     var re = new List<string>();
-                    while(reader.Read())
+                    while (reader.Read())
                         re.Add(reader["name"].ToString());
-                    return re;
+                    return re.ToArray();
                 }
             }
         }

@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace DataAccessLib
 {
-    sealed class MySqlDataAccess : DataAccessBase
+    internal sealed class MySqlDataAccess : DataAccessBase
     {
         public MySqlDataAccess(string connStr) : base(connStr) { }
         public MySqlDataAccess(string Server, string Port, string Database, string UserID, string Password) : base(Server, Port, Database, UserID, Password) { }
         internal override string BuildConnectionString(params string[] fields)
         {
-            return $"Data Source={fields[0]};Port={fields[1]};Database={fields[2]};User Id={fields[3]};Password={fields[4]};charset=utf8;pooling=true;Convert Zero Datetime=true";
+            return $"Data Source={fields[0]};Port={fields[1]};Database={fields[2]};User Id={fields[3]};Password={fields[4]};charset=utf8;pooling=true";
         }
         internal override string SetTimeOut(string connStr)
         {
-            var sb = new MySqlConnectionStringBuilder(connStr);
-            sb.ConnectionTimeout = 5;
+            var sb = new MySqlConnectionStringBuilder(connStr) { ConnectionTimeout = 5, AllowZeroDateTime = true };
+            //sb.AllowZeroDateTime = true;
+            //sb.ConvertZeroDateTime = true;
             return sb.ToString();
         }
 
         internal override bool CheckConnection()
         {
-            using(var conn = new MySqlConnection(base.ConnectionString))
+            using (var conn = new MySqlConnection(ConnectionString))
             {
                 var t = System.Threading.Tasks.Task.Factory.StartNew(() =>
                 {
@@ -33,33 +32,35 @@ namespace DataAccessLib
                         conn.Open();
                         return null;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         return ex;
                     }
                 });
                 t.Wait(1000);
-                if(!t.IsCompleted)
+                if (!t.IsCompleted)
                     throw new Exception("connection time out");
-                if(conn.State == ConnectionState.Open)
+                if (conn.State == ConnectionState.Open)
                     return true;
-                if(t.Result != null)
+                if (t.Result != null)
                     throw t.Result;
                 return false;
             }
         }
 
-        public override DataSet QueryTables(IEnumerable<string> TableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
         {
             var d = new DataSet();
-            using(var conn = new MySqlConnection(ConnectionString))
+            using (var conn = new MySqlConnection(ConnectionString))
             {
                 conn.Open();
-                foreach(var tableName in TableNames)
+
+                foreach (var tableName in tableNames)
                 {
-                    using(var adapter = new MySqlDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new MySqlDataAdapter($"SELECT * FROM {tableName}", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
+                        //d.Tables[tableName].Columns.Cast<DataColumn>().Where(c => c.DataType.Equals(typeof(DateTime))).ToList().ForEach(c => c.DataType = typeof(MySqlDateTime));
                         adapter.Fill(d, tableName);
                         processCallBack?.DynamicInvoke();
                     }
@@ -68,18 +69,17 @@ namespace DataAccessLib
             return d;
         }
 
-        public override IEnumerable<string> QueryAllTableName()
+        public override string[] QueryAllTableName()
         {
-            var d = new DataSet();
-            using(var conn = new MySqlConnection(ConnectionString))
+            using (var conn = new MySqlConnection(ConnectionString))
             {
                 conn.Open();
-                using(var reader = new MySqlCommand("show tables", conn).ExecuteReader())
+                using (var reader = new MySqlCommand("show tables", conn).ExecuteReader())
                 {
                     var re = new List<string>();
-                    while(reader.Read())
+                    while (reader.Read())
                         re.Add(reader.GetString(0));
-                    return re;
+                    return re.ToArray();
                 }
             }
         }

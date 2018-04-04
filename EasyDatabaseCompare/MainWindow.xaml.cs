@@ -1,24 +1,18 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
-using System.Data.OleDb;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DataAccessLib;
+using EasyDatabaseCompare.Model;
 
 namespace EasyDatabaseCompare
 {
@@ -28,62 +22,80 @@ namespace EasyDatabaseCompare
         {
             InitializeComponent();
             SupportedDbList = DataAccessFactory.DbTypes;
+            //var t = new System.Timers.Timer(1000);
+            //t.Elapsed += (s, e) =>
+            //{
+            //    this.Dispatcher.Invoke(new Action(() =>
+            //    {
+            //        Console.WriteLine($"popDataTable.IsFocused: {popDataTable.IsFocused} | popDataTable.IsMouseCaptured: {popDataTable.IsMouseCaptured} | popDataTable.IsMouseCaptureWithin: {popDataTable.IsMouseCaptureWithin}");
+            //        Console.WriteLine(Mouse.Captured);
+            //    }), System.Windows.Threading.DispatcherPriority.Background);
+            //};
+            //t.Start();
         }
 
-        List<TextBox> Fields { get; } = new List<TextBox>();
+        public string[] SupportedDbList
+        {
+            get => (string[])GetValue(SupportedDbListProperty);
+            set => SetValue(SupportedDbListProperty, value);
+        }
+        public static readonly DependencyProperty SupportedDbListProperty =
+            DependencyProperty.Register("SupportedDbList", typeof(string[]), typeof(MainWindow), new PropertyMetadata(new[] { "Empty" }));
+
+        private List<TextBox> Fields { get; } = new List<TextBox>();
+
+        private DataAccessBase DataAccess { get; set; }
+
 
         private void dbType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(e.AddedItems.Count == 0 || e.AddedItems[0].ToString() == "Empty") return;
-            else
+            if (e.AddedItems.Count == 0 || e.AddedItems[0].ToString() == "Empty") return;
+            Fields.Clear();
+            FieldsGrid.Children.Clear();
+            FieldsGrid.ColumnDefinitions.Clear();
+            var fields = DataAccessFactory.GetDbTypeConnectionFields(e.AddedItems[0].ToString());
+            var i = 0;
+            var tbTemplate = FindResource("fieldTextBoxTemp") as ControlTemplate;
+            foreach (var f in fields)
             {
-                Fields.Clear();
-                fieldsGrid.Children.Clear();
-                fieldsGrid.ColumnDefinitions.Clear();
-                var fields = DataAccessFactory.GetDBTypeConnectionFields(e.AddedItems[0].ToString());
-                var i = 0;
-                var tbTemplate = this.FindResource("fieldTextBoxTemp") as ControlTemplate;
-                foreach(var f in fields)
-                {
-                    fieldsGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                    var tb = new TextBox { Tag = f, Template = tbTemplate };
-                    tb.SetValue(Grid.ColumnProperty, i++);
-                    Fields.Add(tb);
-                    fieldsGrid.Children.Add(tb);
-                }
-                GC.Collect();
+                FieldsGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                var tb = new TextBox { Tag = f, Template = tbTemplate };
+                tb.SetValue(Grid.ColumnProperty, i++);
+                Fields.Add(tb);
+                FieldsGrid.Children.Add(tb);
             }
         }
 
         private void checkConn_Click(object sender, RoutedEventArgs e)
         {
-            if(!CheckCanQuery()) return;
+            if (!CheckCanQuery()) return;
             try
             {
-                if(changeMode.IsChecked == true)
-                    DataAccess = DataAccessFactory.Create(dbType.Text, connStr.Text);
-                else
-                    DataAccess = DataAccessFactory.Create(dbType.Text, Fields.Select(f => f.Text).ToArray());
+                DataAccess = ChangeMode.IsChecked == true ?
+                    DataAccessFactory.Create(DbType.Text, ConnStr.Text) :
+                    DataAccessFactory.Create(DbType.Text, Fields.Select(f => f.Text).ToArray());
 
                 TableNames = DataAccess.QueryAllTableName().ToArray();
 
-                topMsg.ShowMessage("Connection Test Success!");
+                ChangeMode.IsEnabled = false;
+
+                TopMsg.ShowMessage("Connection Test Success!");
 
                 filterStr_TextChanged(null, null);
-                showFilter.IsEnabled = get1.IsEnabled = true;
+                ShowFilter.IsEnabled = Get1.IsEnabled = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"{ex.Message}\r\n{ex.StackTrace}\r\n==========\r\n{ex.InnerException}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         #region Get First Time
-        private double QueryProcess1Count = 0;
+        private double _queryProcess1Count;
         public double QueryProcess1
         {
-            get { return (double)GetValue(QueryProcess1Property); }
-            set { SetValue(QueryProcess1Property, value); }
+            get => (double)GetValue(QueryProcess1Property);
+            set => SetValue(QueryProcess1Property, value);
         }
         public static readonly DependencyProperty QueryProcess1Property =
             DependencyProperty.Register("QueryProcess1", typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
@@ -91,28 +103,73 @@ namespace EasyDatabaseCompare
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                SetValue(QueryProcess1Property, ++QueryProcess1Count / QueryTablesFix.Length);
+                SetValue(QueryProcess1Property, ++_queryProcess1Count / QueryTablesFix.Length);
             }), System.Windows.Threading.DispatcherPriority.Background);
         }
         private void get1_Click(object sender, RoutedEventArgs e)
         {
-            get1.IsEnabled = false;
-            QueryProcess1Count = 0;
-            if(QueryAllTable(ref data1, queryRe1, QueryProcess1CallBack))
+            Get1.IsEnabled = false;
+            _queryProcess1Count = 0;
+            if (QueryAllTable(ref data1, QueryRe1, QueryProcess1CallBack))
             {
-                get2.IsEnabled = true;
-                showFilter.IsEnabled = false;
+                Get2.IsEnabled = true;
+                ShowFilter.IsEnabled = false;
+
+
+                TableNamesMenu.DataContext = QueryTablesFix;
+                //tableNames.Items.Clear();
+                //foreach(var tn in QueryTablesFix.OrderBy(s => s))
+                //{
+                //    var mi = new MenuItem { Header = tn, StaysOpenOnClick = true };
+                //    //var lbi = new ListBoxItem { Content = tn };
+                //    //lbi.MouseUp += Lbi_MouseUp;
+                //    //tableNames.Items.Add(lbi);
+                //}
             }
-            get1.IsEnabled = true;
+            Get1.IsEnabled = true;
         }
+
+        //private void Lbi_MouseUp(object sender, MouseButtonEventArgs e)
+        //{
+        //    popDataTable.IsOpen = false;
+        //    var item = sender as ListBoxItem;
+        //    dataTableGrid.DataContext = (tableNames.Tag as DataSet).Tables[item.Content.ToString()];
+        //    popDataTable.PlacementTarget = item as UIElement;
+        //    popDataTable.IsOpen = true;
+        //    //item.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+        //}
+        //private void popDataTable_Opened(object sender, EventArgs e)
+        //{
+        //    Mouse.Capture(dataTableGrid, CaptureMode.SubTree);
+        //    Console.WriteLine(Mouse.Captured);
+        //    dataTableGrid.ReleaseMouseCapture();
+        //    Console.WriteLine(Mouse.Captured);
+        //}
+        //private void popDataTable_GotMouseCapture(object sender, MouseEventArgs e)
+        //{
+        //    dataTableGrid.Focus();
+        //    Console.WriteLine(Mouse.Captured);
+        //    dataTableGrid.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Left)
+        //    {
+        //        RoutedEvent = MouseUpEvent,
+        //        Source = dataTableGrid
+        //    });
+        //    Console.WriteLine(Mouse.Captured);
+        //}
+
+        //private void popDataTable_LostMouseCapture(object sender, MouseEventArgs e)
+        //{
+        //    //this.CaptureMouse();
+        //    //dataTableGrid.ReleaseMouseCapture();
+        //}
         #endregion
 
         #region Get Second Time
-        private double QueryProcess2Count = 0;
+        private double _queryProcess2Count = 0;
         public double QueryProcess2
         {
-            get { return (double)GetValue(QueryProcess2Property); }
-            set { SetValue(QueryProcess2Property, value); }
+            get => (double)GetValue(QueryProcess2Property);
+            set => SetValue(QueryProcess2Property, value);
         }
         public static readonly DependencyProperty QueryProcess2Property =
             DependencyProperty.Register("QueryProcess2", typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
@@ -120,26 +177,21 @@ namespace EasyDatabaseCompare
         {
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                SetValue(QueryProcess2Property, ++QueryProcess2Count / QueryTablesFix.Length);
+                SetValue(QueryProcess2Property, ++_queryProcess2Count / QueryTablesFix.Length);
             }), System.Windows.Threading.DispatcherPriority.Background).Wait();
         }
         private void get2_Click(object sender, RoutedEventArgs e)
         {
-            get1.IsEnabled = get2.IsEnabled = false;
-            QueryProcess2Count = 0;
-            if(QueryAllTable(ref data2, queryRe2, QueryProcess2CallBack))
+            Get1.IsEnabled = Get2.IsEnabled = false;
+            _queryProcess2Count = 0;
+            if (QueryAllTable(ref data2, QueryRe2, QueryProcess2CallBack))
             {
-                compReState.Text = "Not Start Compare";
-                btnComp.IsEnabled = compRe.IsEnabled = true;
-                var link = new Hyperlink() { ToolTip = "Click to move to left.", Style = null, TextDecorations = null, Foreground = queryRe2.Foreground };
-                link.Click += Link_Click;
-                link.Inlines.AddRange(queryRe2.Inlines.ToArray());
-                queryRe2.Inlines.Clear();
-                queryRe2.Inlines.Add(link);
+                CompReState.Text = "Not Start Compare";
+                BtnComp.IsEnabled = CompReL.IsEnabled = true;
             }
             else
-                get1.IsEnabled = true;
-            get2.IsEnabled = true;
+                Get1.IsEnabled = true;
+            Get2.IsEnabled = true;
         }
         #endregion
 
@@ -147,8 +199,8 @@ namespace EasyDatabaseCompare
         private double CompareProcessCount = 0;
         public double CompareProcess
         {
-            get { return (double)GetValue(CompareProcessProperty); }
-            set { SetValue(CompareProcessProperty, value); }
+            get => (double)GetValue(CompareProcessProperty);
+            set => SetValue(CompareProcessProperty, value);
         }
         public static readonly DependencyProperty CompareProcessProperty =
             DependencyProperty.Register("CompareProcess", typeof(double), typeof(MainWindow), new PropertyMetadata(0.0));
@@ -161,40 +213,32 @@ namespace EasyDatabaseCompare
         }
         #endregion
 
-        public string[] SupportedDbList
-        {
-            get { return (string[])GetValue(SupportedDbListProperty); }
-            set { SetValue(SupportedDbListProperty, value); }
-        }
-        public static readonly DependencyProperty SupportedDbListProperty =
-            DependencyProperty.Register("SupportedDbList", typeof(string[]), typeof(MainWindow), new PropertyMetadata(new string[] { "Empty" }));
-
-        private DataAccessBase DataAccess { get; set; }
 
         DataSet data1;
         DataSet data2;
 
 
-        private void Link_Click(object sender, RoutedEventArgs e)
+        private void MoveLeft_Click(object sender, RoutedEventArgs e)
         {
+            if (data2 == null) return;
             data1 = data2;
             data2 = null;
             QueryProcess2 = 0;
-            queryRe1.Inlines.Clear();
-            queryRe1.Inlines.AddRange((sender as Hyperlink).Inlines.ToArray());
-            queryRe2.Text = "No Data";
-            compRe.Items.Clear();
-            btnComp.IsEnabled = compRe.IsEnabled = false;
-            get1.IsEnabled = true;
-            GC.Collect();
+            QueryRe1.Inlines.Clear();
+            QueryRe1.Inlines.AddRange(QueryRe2.Inlines.ToArray());
+            QueryRe2.Text = "No Data";
+            CompReL.Items.Clear();
+            CompReT.Text = string.Empty;
+            BtnComp.IsEnabled = CompReL.IsEnabled = false;
+            Get1.IsEnabled = true;
         }
 
         private bool QueryAllTable(ref DataSet ds, TextBlock lb, Action callBackAction)
         {
-            if(CheckCanQuery() && CheckSelectedTables())
+            if (CheckCanQuery() && CheckSelectedTables())
             {
                 data2 = null;
-                GC.Collect();
+
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 lb.Text = "Querying...";
@@ -217,11 +261,11 @@ namespace EasyDatabaseCompare
 
         private bool CheckCanQuery()
         {
-            if(changeMode.IsChecked == true)
+            if (ChangeMode.IsChecked == true)
             {
-                if(string.IsNullOrEmpty(connStr.Text))
+                if (string.IsNullOrEmpty(ConnStr.Text))
                 {
-                    topMsg.ShowMessage($"Connection string is empty!");
+                    TopMsg.ShowMessage("Connection string is empty!");
                     return false;
                 }
             }
@@ -230,20 +274,18 @@ namespace EasyDatabaseCompare
 
         private bool CheckSelectedTables()
         {
-            if(TableNames.Length > 0)
-                if(((isBlackList.IsChecked ?? false) && SelectedTableName.Count == TableNames.Length) ||
-                   ((!isBlackList.IsChecked) ?? false) && SelectedTableName.Count == 0)
+            if (TableNames.Length > 0)
+                if (((IsBlackList.IsChecked ?? false) && SelectedTableName.Count == TableNames.Length) ||
+                   ((!IsBlackList.IsChecked) ?? false) && SelectedTableName.Count == 0)
                 {
-                    topMsg.ShowMessage("No tables available for query!");
+                    TopMsg.ShowMessage("No tables available for query!");
                     return false;
                 }
             return true;
         }
-
-        //Provider=SQLOLEDB.1;Server=127.0.0.1,51433;Database=RMDBFD;User Id=sa;Password=sa
+        
         private DataSet QueryAll(Action callBackAction)
         {
-            QueryTablesFix = QueryTables.ToArray();
             DataSet d = new DataSet();
             try
             {
@@ -253,7 +295,7 @@ namespace EasyDatabaseCompare
                         d = DataAccess.QueryTables(tns, true, callBackAction);
                     }), QueryTablesFix);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"{ex.Message}\r\n{ex.StackTrace}\r\n==========\r\n{ex.InnerException}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -262,113 +304,132 @@ namespace EasyDatabaseCompare
 
         private void btnComp_Click(object sender, RoutedEventArgs e)
         {
-            if(data1.Tables.Count > 0 && data2.Tables.Count > 0)
+            if (data1.Tables.Count > 0 && data2.Tables.Count > 0)
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
-                compRe.Items.Clear();
-                GC.Collect();
-                compReState.Text = "Comparing...";
+                CompReL.Items.Clear();
+                CompReT.Text = string.Empty;
+
+                CompReState.Text = "Comparing...";
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,
                 new Action(() =>
                 {
                     var tdic = CompareData();
+                    if (tdic.Length == 0)
+                    {
+                        CompReState.Text = "Not found any changes in selected tables";
+                        return;
+                    }
                     FillCompareResult(tdic);
-                    compReState.Inlines.Clear();
-                    compReState.Inlines.Add("Compare found ");
-                    compReState.Inlines.Add(new Run(tdic.Length.ToString())
+                    CompReState.Inlines.Clear();
+                    CompReState.Inlines.Add("Compare found ");
+                    CompReState.Inlines.Add(new Run(tdic.Length.ToString())
                     {
                         Foreground = Brushes.Red
                     });
-                    compReState.Inlines.Add(" Table and ");
-                    compReState.Inlines.Add(new Run(tdic.Select(t => t.UpDatedData.Count).Sum().ToString())
+                    CompReState.Inlines.Add(" Table and ");
+                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.UpDatedData.Count).Sum().ToString())
                     {
                         Foreground = Brushes.Red
                     });
-                    compReState.Inlines.Add(" update Records, ");
-                    compReState.Inlines.Add(new Run(tdic.Select(t => t.InsertRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
-                    compReState.Inlines.Add(" insert Records, ");
-                    compReState.Inlines.Add(new Run(tdic.Select(t => t.DeleteRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
-                    compReState.Inlines.Add(" delete Records");
-                    compReState.Inlines.Add("\r\n");
+                    CompReState.Inlines.Add(" update Records, ");
+                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.InsertRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
+                    CompReState.Inlines.Add(" insert Records, ");
+                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.DeleteRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
+                    CompReState.Inlines.Add(" delete Records");
+                    CompReState.Inlines.Add("\r\n");
                     watch.Stop();
-                    compReState.Inlines.Add($"Compare Spent Time: {watch.Elapsed}");
+                    CompReState.Inlines.Add($"Compare Spent Time: {watch.Elapsed}");
                 }));
-                GC.Collect();
+
             }
         }
 
         private DataEntity[] CompareData()
         {
-            #region waitMove
-            var ts1 = data1.Tables.Cast<DataTable>().Where(t => t.PrimaryKey?.Length > 0);
-            var ts2 = data2.Tables.Cast<DataTable>().Where(t => t.PrimaryKey?.Length > 0);
+            CompareProcess = 0;
+            var ts1 = data1.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length > 0);
+            var ts2 = data2.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length > 0);
             var tg = ts1.Zip(ts2, Tuple.Create);
-            var tdic = tg.Select(g => new DataEntity(g.Item1, g.Item2, EachDataEntityCreateCallBack))
+            var tdic = tg.Select(g =>
+                   {
+                       CompareProcessCallBack();
+                       return new DataEntity(g.Item1, g.Item2, EachDataEntityCreateCallBack);
+                   })
             .Where(t => t.UpDatedData.Count > 0 || t.InsertRows.Count > 0 || t.DeleteRows.Count > 0).ToArray();
             return tdic;
-            #endregion
         }
 
         private void FillCompareResult(DataEntity[] tdic)
         {
-            if(tdic.Length == 0)
-                compReState.Text = "Not found any changes in selected tables";
-            else
+            var sb = new StringBuilder();
+            foreach (var t in tdic)
             {
-                var w = new Window();
-                var tb = new TextBox()
+                var z = new DatabaseChangeContent
                 {
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(0),
-                    TextWrapping = TextWrapping.Wrap,
-                    IsReadOnly = true,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-                };
-                w.Content = tb;
-                var sb = new StringBuilder();
-                foreach(var t in tdic)
-                {
-                    var z =
-                    new DatabaseChangeContent
+                    TableName = t.TableName,
+                    UpdatedDatas = t.UpDatedData.Select(kvp => new UpdatedData
                     {
-                        TableName = t.TableName,
-                        UpdatedDatas = t.UpDatedData.Select(kvp => new UpdatedData
+                        UniquePrimaryKey = kvp.Key,
+                        UpdatedFields = kvp.Value.DiffFields.Select(diff => new UpdatedField
                         {
-                            UniquePrimaryKey = kvp.Key,
-                            UpdatedFields = kvp.Value.DiffFields.Select(diff => new UpdatedField
-                            {
-                                ColumnName = diff.Key.ColumnName,
-                                OldValue = diff.Value[0],
-                                NewValue = diff.Value[1]
-                            })
-                        }).ToArray(),
-                        InsertedDatas = t.InsertRows.Select(kvp => new InsertedData
-                        {
-                            UniquePrimaryKey = kvp.Key,
-                            Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
-                                .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
-                        }).ToArray(),
-                        DeletedDatas = t.DeleteRows.Select(kvp => new DeletedData
-                        {
-                            UniquePrimaryKey = kvp.Key,
-                            Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
-                                .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
-                        }).ToArray()
-                    };
-
-                    var dataItem = new DataTableListItem(z);
-                    compRe.Items.Add(dataItem);
-                    sb.AppendLine($"{z.TableName}:");
-                    sb.AppendLine(JsonConvert.SerializeObject(z, Formatting.Indented));
-                    sb.AppendLine("=================================================");
-                    CompareProcessCallBack();
-                }
-                tb.Text = sb.ToString();
-                w.Show();
+                            ColumnName = diff.Key.ColumnName,
+                            OldValue = diff.Value[0],
+                            NewValue = diff.Value[1]
+                        })
+                    }).ToArray(),
+                    InsertedDatas = t.InsertRows.Select(kvp => new InsertedData
+                    {
+                        UniquePrimaryKey = kvp.Key,
+                        Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
+                            .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
+                    }).ToArray(),
+                    DeletedDatas = t.DeleteRows.Select(kvp => new DeletedData
+                    {
+                        UniquePrimaryKey = kvp.Key,
+                        Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
+                            .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
+                    }).ToArray()
+                };
+                var dataItem = new DataTableListItem(z);
+                dataItem.TableNameClickEvent += CopyTableName;
+                dataItem.ShowTableData += DataItem_ShowTableData;
+                CompReL.Items.Add(dataItem);
+                sb.AppendLine($"{z.TableName}:");
+                sb.AppendLine(JsonConvert.SerializeObject(z, Formatting.Indented));
+                sb.AppendLine("=================================================");
+                //CompareProcessCallBack();
             }
+            CompReT.Text = sb.ToString();
+            //var w = new Window();
+            //var tb = new TextBox()
+            //{
+            //    Margin = new Thickness(0),
+            //    Padding = new Thickness(0),
+            //    TextWrapping = TextWrapping.Wrap,
+            //    IsReadOnly = true,
+            //    VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+            //};
+            //w.Content = tb;
+            //tb.Text = sb.ToString();
+            //w.Show();
         }
 
+        private void DataItem_ShowTableData(UIElement sender, bool isOld, string tableName)
+        {
+            DataTableGrid.DataContext = isOld ? data1.Tables[tableName] : data2.Tables[tableName];
+            PopDataTable.PlacementTarget = sender;
+            PopDataTable.IsOpen = true;
+        }
+
+        private void CopyTableName(object sender, HandledEventArgs e)
+        {
+            if (e.Handled)
+                TopMsg.ShowMessage("Table name copied!", 1000);
+            else
+                TopMsg.ShowMessage("Table name copy failed!", 1000);
+        }
         private void EachDataEntityCreateCallBack()
         {
 
@@ -377,35 +438,40 @@ namespace EasyDatabaseCompare
         private void reset_Click(object sender, RoutedEventArgs e)
         {
             //connStr.Text = string.Empty;
-            if(data1 == null)
+            if (data1 == null)
             {
-                topMsg.ShowMessage("All Reset!", 1000);
+                Fields.ForEach(f => f.Text = string.Empty);
+                ConnStr.Text = string.Empty;
+                ChangeMode.IsEnabled = true;
+                TopMsg.ShowMessage("All Reset!", 1000);
             }
             else
             {
                 data1 = null;
                 data2 = null;
                 QueryProcess1 = QueryProcess2 = CompareProcess = 0;
-                QueryProcess1Count = QueryProcess2Count = CompareProcessCount = 0;
-                compRe.Items.Clear();
+                _queryProcess1Count = _queryProcess2Count = CompareProcessCount = 0;
+                CompReL.Items.Clear();
+                CompReT.Text = string.Empty;
                 SelectedTableName.Clear();
-                filterTableList.SelectedItems.Clear();
+                FilterTableList.SelectedItems.Clear();
                 TableNames = new string[0];
-                queryRe1.Text = queryRe2.Text = "No Data";
-                compReState.Text = "Not Start Compare";
-                showFilter.IsEnabled = get1.IsEnabled = get2.IsEnabled = btnComp.IsEnabled = compRe.IsEnabled = false;
-                topMsg.ShowMessage("Data Has Been Cleared!", 1000);
+                QueryRe1.Text = QueryRe2.Text = "No Data";
+                CompReState.Text = "Not Start Compare";
+                ShowFilter.IsEnabled = Get1.IsEnabled = Get2.IsEnabled = BtnComp.IsEnabled = CompReL.IsEnabled = false;
+                TopMsg.ShowMessage("Data Has Been Cleared!", 1000);
             }
-            GC.Collect();
+
         }
 
-        private string[] QueryTablesFix { get; set; }
+        private string[] QueryTablesFix => _queryTablesFix ?? (_queryTablesFix = QueryTables.ToArray());
 
+        private string[] _queryTablesFix;
         private IEnumerable<string> QueryTables
         {
             get
             {
-                if(isBlackList.IsChecked ?? false)
+                if (IsBlackList.IsChecked ?? false)
                     return TableNames.Except(SelectedTableName);
                 else
                     return SelectedTableName;
@@ -420,32 +486,79 @@ namespace EasyDatabaseCompare
 
         private HashSet<string> SelectedTableName { get; } = new HashSet<string>();
 
-        bool OnFilter = false;
+        bool _onFilter;
         private void filterStr_TextChanged(object sender, TextChangedEventArgs e)
         {
-            OnFilter = true;
-            var filterList = filterStr.Text.Contains('_') ?
-                TableNames.Where(str => str.ToLower().Contains(filterStr.Text.ToLower())) :
-                TableNames.Where(str => str.Replace("_", "").ToLower().Contains(filterStr.Text.ToLower()));
-            filterTableList.ItemsSource = filterList;
+            _onFilter = true;
+            var filterList = FilterStr.Text.Contains('_') ?
+                TableNames.Where(str => str.ToLower().Contains(FilterStr.Text.ToLower())) :
+                TableNames.Where(str => str.Replace("_", "").ToLower().Contains(FilterStr.Text.ToLower()));
+            FilterTableList.ItemsSource = filterList;
             var intersectList = SelectedTableName.Intersect(filterList).ToList();
-            intersectList.ForEach(str => filterTableList.SelectedItems.Add(str));
-            OnFilter = false;
+            intersectList.ForEach(str => FilterTableList.SelectedItems.Add(str));
+            _onFilter = false;
         }
         private void filterTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             e.AddedItems.Cast<string>().ToList().ForEach(str => SelectedTableName.Add(str));
-            if(!OnFilter) e.RemovedItems.Cast<string>().ToList().ForEach(str => SelectedTableName.Remove(str));
+            if (!_onFilter) e.RemovedItems.Cast<string>().ToList().ForEach(str => SelectedTableName.Remove(str));
         }
 
         private void changeMode_Checked(object sender, RoutedEventArgs e)
         {
-            topMsg.ShowMessage("Connection String Mode: Custom Mode", 1000);
+            TopMsg.ShowMessage("Connection String Mode: Custom Mode", 1000);
         }
 
         private void changeMode_Unchecked(object sender, RoutedEventArgs e)
         {
-            topMsg.ShowMessage("Connection String Mode: Field Mode", 1000);
+            TopMsg.ShowMessage("Connection String Mode: Field Mode", 1000);
+        }
+        private void DisplayTypeChecked(object sender, RoutedEventArgs e)
+        {
+            if (RowList == null || RowResize == null || RowText == null) return;
+            RowResize.Height = new GridLength(0, GridUnitType.Auto);
+            RowText.Height = RowList.Height = new GridLength(1, GridUnitType.Star);
+        }
+        private void DisplayTypeUnchecked(object sender, RoutedEventArgs e)
+        {
+            RowResize.Height = new GridLength(0);
+            if (sender == IsShowList)
+            {
+                RowText.Height = new GridLength(1, GridUnitType.Star);
+                RowList.Height = new GridLength(0);
+            }
+            else
+            {
+                RowText.Height = new GridLength(1, GridUnitType.Star);
+                RowText.Height = new GridLength(0);
+            }
+
+            if (!(IsShowList.IsChecked.Value || IsShowText.IsChecked.Value))
+                if (sender == IsShowList)
+                    IsShowText.IsChecked = true;
+                else
+                    IsShowList.IsChecked = true;
+        }
+
+        private void showTableMenu(object sender, RoutedEventArgs e)
+        {
+            if (sender == ShowOldTableList && data1 != null)
+            {
+                TableNamesMenu.PlacementTarget = ShowOldTableList;
+                TableNamesMenu.Tag = data1;
+                TableNamesMenu.IsOpen = true;
+            }
+            else if (sender == ShowNewTableList && data2 != null)
+            {
+                TableNamesMenu.PlacementTarget = ShowNewTableList;
+                TableNamesMenu.Tag = data2;
+                TableNamesMenu.IsOpen = true;
+            }
+        }
+        private void ignoreRClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton != MouseButton.Left)
+                e.Handled = true;
         }
     }
 }

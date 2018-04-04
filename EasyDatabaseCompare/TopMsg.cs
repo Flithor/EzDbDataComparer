@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Timers;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
@@ -24,15 +19,15 @@ namespace EasyDatabaseCompare
             HideAnime.Begin(TopMsgGrid);
         }
 
-        DispatcherTimer T { get; set; }
+        DispatcherTimer T { get; }
 
-        Grid TopMsgGrid;
-        Border MsgDisplay;
-        Label MsgContent;
+        Grid TopMsgGrid { get; set; }
+        Border MsgDisplay { get; set; }
+        Label MsgContent { get; set; }
 
 
-        Storyboard ShowAnime;
-        Storyboard HideAnime;
+        Storyboard ShowAnime { get; set; }
+        Storyboard HideAnime { get; set; }
 
 
         public override void OnApplyTemplate()
@@ -47,7 +42,7 @@ namespace EasyDatabaseCompare
 
         public void ShowMessage(string msg, double showTime = 2000)
         {
-            if(T.IsEnabled)
+            if (T.IsEnabled)
             {
                 ShowAnime.Stop(TopMsgGrid);
                 MsgDisplay.Opacity = 0;

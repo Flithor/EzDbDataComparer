@@ -1,4 +1,5 @@
-﻿<Window x:Name="window" x:Class="EasyDatabaseCompare.MainWindow"
+﻿<Window x:Name="Window"
+        x:Class="EasyDatabaseCompare.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,50 +10,63 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="ControlResources.xaml"/>
+                <ResourceDictionary Source="ControlResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <local:TopMsg x:Name="topMsg" Template="{StaticResource topMsgTemp}">
-        <Grid>
+    <local:TopMsg x:Name="TopMsg"
+                  Template="{StaticResource topMsgTemp}">
+        <Grid UseLayoutRounding="True">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
             </Grid.RowDefinitions>
-            <Grid Grid.ColumnSpan="2">
-                <Grid Margin="0,0,137,0">
+            <Grid Grid.ColumnSpan="2"
+                  UseLayoutRounding="True">
+                <Grid Margin="0,0,137,0"
+                      UseLayoutRounding="True">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="17"/>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="17" />
                     </Grid.ColumnDefinitions>
                     <Grid.Triggers>
-                        <EventTrigger SourceName="changeMode" RoutedEvent="ToggleButton.Unchecked">
+                        <EventTrigger SourceName="ChangeMode"
+                                      RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
                                 <Storyboard FillBehavior="Stop">
-                                    <ThicknessAnimation From="0" To="0,-17,0,0" Storyboard.TargetName="connStrGrid" Storyboard.TargetProperty="Margin" Duration="0:0:0.5">
+                                    <ThicknessAnimation From="0"
+                                                        To="0,-17,0,0"
+                                                        Storyboard.TargetName="ConnStrGrid"
+                                                        Storyboard.TargetProperty="Margin"
+                                                        Duration="0:0:0.5">
                                         <ThicknessAnimation.EasingFunction>
-                                            <QuinticEase EasingMode="EaseOut"/>
+                                            <QuinticEase EasingMode="EaseOut" />
                                         </ThicknessAnimation.EasingFunction>
                                     </ThicknessAnimation>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
-                        <EventTrigger SourceName="changeMode" RoutedEvent="ToggleButton.Checked">
+                        <EventTrigger SourceName="ChangeMode"
+                                      RoutedEvent="ToggleButton.Checked">
                             <EventTrigger.Actions>
                                 <BeginStoryboard>
                                     <Storyboard FillBehavior="HoldEnd">
-                                        <ThicknessAnimation From="0,-17,0,0" To="0" Storyboard.TargetName="connStrGrid" Storyboard.TargetProperty="Margin" Duration="0:0:0.5">
+                                        <ThicknessAnimation From="0,-17,0,0"
+                                                            To="0"
+                                                            Storyboard.TargetName="ConnStrGrid"
+                                                            Storyboard.TargetProperty="Margin"
+                                                            Duration="0:0:0.5">
                                             <ThicknessAnimation.EasingFunction>
-                                                <QuinticEase EasingMode="EaseOut"/>
+                                                <QuinticEase EasingMode="EaseOut" />
                                             </ThicknessAnimation.EasingFunction>
                                         </ThicknessAnimation>
                                     </Storyboard>
@@ -60,90 +74,400 @@
                             </EventTrigger.Actions>
                         </EventTrigger>
                     </Grid.Triggers>
-                    <Grid>
-                        <Label Content="Database Type" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFACACAC" BorderThickness="1,1,0,1"/>
-                        <ComboBox x:Name="dbType" ItemsSource="{Binding SupportedDbList, ElementName=window}" SelectedIndex="0" IsSynchronizedWithCurrentItem="True" Padding="3,1" Margin="89.79,0,0,0" SelectionChanged="dbType_SelectionChanged"/>
+                    <Grid UseLayoutRounding="True">
+                        <Label Content="Database Type"
+                               Padding="2,0"
+                               HorizontalAlignment="Left"
+                               BorderBrush="#FFACACAC"
+                               BorderThickness="1,1,0,1"
+                               FontSize="11"
+                               UseLayoutRounding="True" />
+                        <ComboBox x:Name="DbType"
+                                  ItemsSource="{Binding SupportedDbList, ElementName=Window}"
+                                  SelectedIndex="0"
+                                  IsSynchronizedWithCurrentItem="True"
+                                  Padding="3,1"
+                                  Margin="82.727,0,0,0"
+                                  SelectionChanged="dbType_SelectionChanged"
+                                  UseLayoutRounding="True" />
                     </Grid>
-
-                    <Grid x:Name="fieldsGrid" Grid.Column="1">
-                        <!--<Grid Grid.Column="1">
-                            <Label Content="Data Server" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
-                            <TextBox x:Name="dbServer" Margin="71.44,0,0,0"/>
-                        </Grid>
-                        <Grid Grid.Column="2">
-                            <Label Content="Data Source" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
-                            <TextBox x:Name="dbSource" Margin="74.787,0,0,0"/>
-                        </Grid>
-                        <Grid Grid.Column="3">
-                            <Label Content="User ID" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
-                            <TextBox x:Name="dbUid" Margin="47.123,0,0,0"/>
-                        </Grid>
-                        <Grid Grid.Column="4">
-                            <Label Content="PassWord" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFABADB3" BorderThickness="1,1,0,1"/>
-                            <TextBox x:Name="dbPwd" Margin="62.183,0,0,0"/>
-                        </Grid>-->
+                    <Grid x:Name="FieldsGrid"
+                          Grid.Column="1"
+                          UseLayoutRounding="True" />
+                    <Grid x:Name="ConnStrGrid"
+                          Grid.Column="1"
+                          Margin="0,-17,0,0"
+                          VerticalAlignment="Top"
+                          UseLayoutRounding="True">
+                        <Label Content="Connection String"
+                               Padding="2,0"
+                               HorizontalAlignment="Left"
+                               BorderBrush="#FFACACAC"
+                               BorderThickness="1,1,0,1"
+                               Background="White"
+                               UseLayoutRounding="True" />
+                        <TextBox x:Name="ConnStr"
+                                 VerticalAlignment="Top"
+                                 Margin="109,0,0,0"
+                                 UseLayoutRounding="True" />
                     </Grid>
-                    <Grid x:Name="connStrGrid" Grid.Column="1" Grid.ColumnSpan="4" Margin="0,-17,0,0" VerticalAlignment="Top">
-                        <Label Content="Connection String" Padding="2,0" HorizontalAlignment="Left" BorderBrush="#FFACACAC" BorderThickness="1,1,0,1" Background="White"/>
-                        <TextBox x:Name="connStr" VerticalAlignment="Top" Margin="108.75,0,0,0" Height="17"/>
-                    </Grid>
-                    <ToggleButton x:Name="changeMode" Grid.Column="5" Content="{StaticResource dblArrow}" Checked="changeMode_Checked" Unchecked="changeMode_Unchecked"/>
-
+                    <ToggleButton x:Name="ChangeMode"
+                                  Grid.Column="2"
+                                  Checked="changeMode_Checked"
+                                  Unchecked="changeMode_Unchecked"
+                                  UseLayoutRounding="True">
+                        <Image Source="ThirdPartyResources/Microsoft/SwitchSourceOrTarget_16x.png"
+                               RenderTransformOrigin="0.5,0.5"
+                               Stretch="UniformToFill">
+                            <Image.RenderTransform>
+                                <TransformGroup>
+                                    <RotateTransform Angle="90" />
+                                </TransformGroup>
+                            </Image.RenderTransform>
+                        </Image>
+                    </ToggleButton>
                 </Grid>
-                <Button x:Name="checkConn" Content="Check" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Click="checkConn_Click" Margin="0,0,77,0" Grid.Column="1" Height="17"/>
-                <ToggleButton x:Name="showFilter" Content="↓ Filter ↓" HorizontalAlignment="Right" VerticalAlignment="Top" Width="60" Padding="0" Margin="0,0,17,0" IsEnabled="False" Grid.Column="1" Height="17"/>
-                <Button x:Name="reset" HorizontalAlignment="Right" VerticalAlignment="Top" Width="17" Padding="0" Margin="0" Height="17" Click="reset_Click" Grid.Column="1" Content="{StaticResource resetArrow}"/>
-
+                <Button x:Name="CheckConn"
+                        Content="Check"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Width="60"
+                        Padding="0"
+                        Click="checkConn_Click"
+                        Margin="0,0,77,0"
+                        UseLayoutRounding="True" />
+                <ToggleButton x:Name="ShowFilter"
+                              Content="↓ Filter ↓"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Top"
+                              Width="60"
+                              Padding="0"
+                              Margin="0,0,17,0"
+                              IsEnabled="False"
+                              UseLayoutRounding="True" />
+                <Button x:Name="Reset"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Width="17"
+                        Padding="0"
+                        Margin="0"
+                        Click="reset_Click"
+                        UseLayoutRounding="True">
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="StaysOpenOnClick"
+                                            Value="True" />
+                                    <Setter Property="IsSubmenuOpen"
+                                            Value="False" />
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                            <MenuItem>
+                                <MenuItem.Header>123455667</MenuItem.Header>
+                                <MenuItem>
+                                    Sub12345
+                                </MenuItem>
+                            </MenuItem>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <Image Source="ThirdPartyResources/Microsoft/Restart_16x.png"
+                           Stretch="UniformToFill" />
+                </Button>
                 <!--Visibility="Collapsed"-->
-                <Popup x:Name="filterPopup" PopupAnimation="Slide" StaysOpen="False" Placement="Relative" 
-                   IsOpen="{Binding IsChecked, ElementName=showFilter}"
-                   PlacementTarget="{Binding ElementName=showFilter}" Width="196" MaxHeight="400">
+                <Popup x:Name="FilterPopup"
+                       PopupAnimation="Slide"
+                       StaysOpen="False"
+                       Placement="Relative"
+                       IsOpen="{Binding IsChecked, ElementName=ShowFilter}"
+                       PlacementTarget="{Binding ElementName=ShowFilter}"
+                       Width="196"
+                       MaxHeight="400">
                     <Grid Background="White">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition/>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
                         </Grid.RowDefinitions>
-                        <CheckBox x:Name="isBlackList" HorizontalAlignment="Left" Padding="1,1,0,0" Margin="0" VerticalContentAlignment="Stretch">Black List Mode</CheckBox>
-                        <TextBox x:Name="filterStr" TextChanged="filterStr_TextChanged" HorizontalAlignment="Right" Width="87.805" Style="{StaticResource filterTBoxStyle}"/>
-                        <ListBox Grid.Row="1" x:Name="filterTableList" SelectionMode="Multiple" SelectionChanged="filterTableList_SelectionChanged"/>
+                        <CheckBox x:Name="IsBlackList"
+                                  HorizontalAlignment="Left"
+                                  Padding="1,1,0,0"
+                                  Margin="0"
+                                  VerticalContentAlignment="Stretch">Black List Mode</CheckBox>
+                        <TextBox Grid.Row="0"
+                                 x:Name="FilterStr"
+                                 TextChanged="filterStr_TextChanged"
+                                 HorizontalAlignment="Right"
+                                 Width="87.805"
+                                 Style="{StaticResource filterTBoxStyle}" />
+                        <ListBox Grid.Row="1"
+                                 x:Name="FilterTableList"
+                                 SelectionMode="Multiple"
+                                 SelectionChanged="filterTableList_SelectionChanged" />
                     </Grid>
                 </Popup>
             </Grid>
-            <Button x:Name="get1" Grid.Row="1" Content="↓ Get Current ↓" Click="get1_Click" IsEnabled="False"/>
-            <Button x:Name="get2" Grid.Row="1" Grid.Column="1" Content="↓ Get Current ↓" Click="get2_Click" IsEnabled="False"/>
-            <Rectangle x:Name="pro1" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe1}" >
+            <Button x:Name="Get1"
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Click="get1_Click"
+                    IsEnabled="False"
+                    UseLayoutRounding="True">
+                <TextBlock>
+                    <Span BaselineAlignment="Top">
+                        <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
+                               Stretch="None" />
+                    </Span> Get First Snapshot
+                </TextBlock>
+            </Button>
+            <Button x:Name="Get2"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Click="get2_Click"
+                    IsEnabled="False"
+                    UseLayoutRounding="True">
+                <TextBlock>
+                    <Span BaselineAlignment="Top">
+                        <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
+                               Stretch="None" />
+                    </Span> Get Second Snapshot
+                </TextBlock>
+            </Button>
+            <Rectangle x:Name="Pro1"
+                       Height="3"
+                       Grid.Row="2"
+                       Grid.Column="0"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                       Fill="CornflowerBlue"
+                       StrokeThickness="0"
+                       Width="{Binding ActualWidth, ElementName=QueryRe1}"
+                       UseLayoutRounding="True">
                 <Rectangle.LayoutTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding QueryProcess1, ElementName=window}"/>
+                        <ScaleTransform ScaleX="{Binding QueryProcess1, ElementName=Window}" />
                     </TransformGroup>
                 </Rectangle.LayoutTransform>
             </Rectangle>
-            <Rectangle x:Name="pro2" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=queryRe2}" Grid.Column="1">
+            <Rectangle x:Name="Pro2"
+                       Height="3"
+                       Grid.Row="2"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                       Fill="CornflowerBlue"
+                       StrokeThickness="0"
+                       Width="{Binding ActualWidth, ElementName=QueryRe2}"
+                       Grid.Column="1"
+                       UseLayoutRounding="True">
                 <Rectangle.LayoutTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding QueryProcess2, ElementName=window}"/>
+                        <ScaleTransform ScaleX="{Binding QueryProcess2, ElementName=Window}" />
                     </TransformGroup>
                 </Rectangle.LayoutTransform>
             </Rectangle>
-            <TextBlock x:Name="queryRe1" Text="No Data" Grid.Row="2" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
-            <TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" TextAlignment="Center" Background="{StaticResource click2LeftBgBrush}"/>
-            <!--<TextBlock x:Name="queryRe2" Text="No Data" Grid.Row="2" Padding="3" Grid.Column="1" Background="{x:Null}" TextAlignment="Center">
-            <Hyperlink Style="{x:Null}" TextDecorations="{x:Null}"><Run Foreground="Red">123</Run></Hyperlink>
-            <Span>123</Span>
-            <Run>123</Run>
-        </TextBlock>-->
-            <Button x:Name="btnComp" Grid.Row="3" Grid.ColumnSpan="2" Content="↓ Compare ↓" Click="btnComp_Click" IsEnabled="False"/>
-            <Grid Grid.Row="4" Grid.ColumnSpan="2">
-                <Rectangle x:Name="compPro" Height="3" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Fill="CornflowerBlue" StrokeThickness="0" Width="{Binding ActualWidth, ElementName=compRe}" >
+            <TextBlock x:Name="QueryRe1"
+                       Text="No Data"
+                       Grid.Row="2"
+                       Grid.Column="0"
+                       Padding="3"
+                       Background="{x:Null}"
+                       TextAlignment="Center"
+                       UseLayoutRounding="True" />
+            <Button x:Name="ShowOldTableList"
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    BorderThickness="0"
+                    Background="{x:Null}"
+                    BorderBrush="{x:Null}"
+                    Foreground="{x:Null}"
+                    Click="showTableMenu"
+                    PreviewMouseUp="ignoreRClick">
+                <Path Fill="Black"
+                      Data="{StaticResource invTriangle}" />
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="TableNamesMenu"
+                                 ItemsSource="{Binding}">
+                        <ContextMenu.ItemContainerStyle>
+                            <Style TargetType="MenuItem">
+                                <Setter Property="StaysOpenOnClick"
+                                        Value="True" />
+                                <Setter Property="IsSubmenuOpen"
+                                        Value="False" />
+                            </Style>
+                        </ContextMenu.ItemContainerStyle>
+                        <!--<ContextMenu.ItemTemplate>
+                            <DataTemplate>
+                                <MenuItem Header="{Binding}"/>
+                            </DataTemplate>
+                        </ContextMenu.ItemTemplate>-->
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button x:Name="MoveLeftButton"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch"
+                    Background="Transparent"
+                    BorderBrush="{x:Null}"
+                    Padding="0"
+                    BorderThickness="0"
+                    Click="MoveLeft_Click">
+                <TextBlock x:Name="QueryRe2"
+                           Text="No Data"
+                           Padding="3"
+                           TextAlignment="Center"
+                           Background="{StaticResource click2LeftBgBrush}"
+                           UseLayoutRounding="True"
+                           IsHitTestVisible="False" />
+            </Button>
+            <Button x:Name="ShowNewTableList"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    BorderThickness="0"
+                    Background="{x:Null}"
+                    BorderBrush="{x:Null}"
+                    Foreground="{x:Null}"
+                    Click="showTableMenu"
+                    PreviewMouseUp="ignoreRClick">
+                <Path Fill="Black"
+                      Data="{StaticResource invTriangle}" />
+            </Button>
+            <Button x:Name="BtnComp"
+                    Grid.Row="3"
+                    Grid.ColumnSpan="2"
+                    Grid.Column="0"
+                    Content="↓ Compare ↓"
+                    Click="btnComp_Click"
+                    IsEnabled="False"
+                    Margin="0,0,90,0"
+                    UseLayoutRounding="True" />
+            <ToggleButton x:Name="IsShowList"
+                          Grid.Row="3"
+                          Grid.Column="1"
+                          HorizontalAlignment="Right"
+                          Width="45"
+                          Margin="0,0,45,0"
+                          IsChecked="True"
+                          UseLayoutRounding="True"
+                          Unchecked="DisplayTypeUnchecked"
+                          Checked="DisplayTypeChecked">
+                <CheckBox IsChecked="{Binding IsChecked, ElementName=IsShowList, Mode=OneWay}"
+                          IsHitTestVisible="False"
+                          Padding="2,0,0,0"
+                          Content="List"
+                          UseLayoutRounding="True" />
+            </ToggleButton>
+            <ToggleButton x:Name="IsShowText"
+                          Grid.Row="3"
+                          Grid.Column="1"
+                          HorizontalAlignment="Right"
+                          Width="45"
+                          UseLayoutRounding="True"
+                          Unchecked="DisplayTypeUnchecked"
+                          IsChecked="True"
+                          Checked="DisplayTypeChecked">
+                <CheckBox IsChecked="{Binding IsChecked, ElementName=IsShowText, Mode=OneWay}"
+                          IsHitTestVisible="False"
+                          Padding="0"
+                          Content="Text"
+                          UseLayoutRounding="True" />
+            </ToggleButton>
+            <Grid Grid.Row="4"
+                  Grid.ColumnSpan="2"
+                  Grid.Column="0"
+                  UseLayoutRounding="True">
+                <Rectangle x:Name="CompPro"
+                           Height="3"
+                           VerticalAlignment="Top"
+                           Fill="CornflowerBlue"
+                           StrokeThickness="0"
+                           Width="{Binding ActualWidth, ElementName=compRe}"
+                           UseLayoutRounding="True">
                     <Rectangle.LayoutTransform>
                         <TransformGroup>
-                            <ScaleTransform ScaleX="{Binding CompareProcess, ElementName=window}"/>
+                            <ScaleTransform ScaleX="{Binding CompareProcess, ElementName=Window}" />
                         </TransformGroup>
                     </Rectangle.LayoutTransform>
                 </Rectangle>
-                <TextBlock x:Name="compReState" Text="Not Start Compare" Padding="3" Background="{x:Null}" TextAlignment="Center"/>
+                <TextBlock x:Name="CompReState"
+                           Text="Not Start Compare"
+                           Padding="3"
+                           Background="{x:Null}"
+                           TextAlignment="Center"
+                           UseLayoutRounding="True" />
             </Grid>
-            <ListBox x:Name="compRe" Grid.Row="5" Grid.ColumnSpan="2" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="0" />
+            <Grid x:Name="CompReGrid"
+                  Grid.Row="5"
+                  Grid.ColumnSpan="2"
+                  Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="RowList" />
+                    <RowDefinition x:Name="RowResize"
+                                   Height="auto" />
+                    <RowDefinition x:Name="RowText" />
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <BooleanToVisibilityConverter x:Key="BvConverter" />
+                </Grid.Resources>
+                <ListBox x:Name="CompReL"
+                         DockPanel.Dock="Top"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Margin="0"
+                         ScrollViewer.CanContentScroll="False"
+                         UseLayoutRounding="True"
+                         Visibility="{Binding IsChecked, ElementName=IsShowList, Converter={StaticResource BvConverter}}"
+                         BorderThickness="0,1,0,0">
+                    <!--<local:DataTableListItem TableName="TableName"
+                                             TableNameClickEvent="CopyTableName" />-->
+                </ListBox>
+                <GridSplitter Grid.Row="1"
+                              Height="5"
+                              ResizeBehavior="PreviousAndNext"
+                              ResizeDirection="Rows"
+                              ShowsPreview="True"
+                              Background="#FFABADB3"
+                              HorizontalAlignment="Stretch"
+                              DragIncrement="5"
+                              Foreground="{x:Null}" />
+                <TextBox x:Name="CompReT"
+                         Grid.Row="2"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto"
+                         Visibility="{Binding IsChecked, ElementName=IsShowText, Converter={StaticResource BvConverter}}"
+                         BorderThickness="0,1,0,0" />
+            </Grid>
+            <Popup Grid.Row="5"
+                   Grid.Column="0"
+                   x:Name="PopDataTable"
+                   MaxWidth="800"
+                   MaxHeight="600"
+                   PopupAnimation="Slide"
+                   StaysOpen="False"
+                   IsOpen="{Binding StaysOpen, ElementName=popTableNames, Mode=OneWayToSource}"
+                   Placement="Left">
+                <Popup.HorizontalOffset>
+                    <Binding Path="-PlacementTarget.(Popup.ActualWidth)"
+                             RelativeSource="{RelativeSource Self}" />
+                </Popup.HorizontalOffset>
+                <DataGrid x:Name="DataTableGrid"
+                          CanUserReorderColumns="False"
+                          CanUserResizeColumns="False"
+                          CanUserResizeRows="False"
+                          HeadersVisibility="Column"
+                          IsReadOnly="True"
+                          ItemsSource="{Binding}" />
+            </Popup>
+            <!--<Popup x:Name="popTableNames"
+                   MaxWidth="300"
+                   MaxHeight="600"
+                   PopupAnimation="Slide">
+                <ListBox x:Name="tableNames" />
+            </Popup>-->
         </Grid>
     </local:TopMsg>
 </Window>
