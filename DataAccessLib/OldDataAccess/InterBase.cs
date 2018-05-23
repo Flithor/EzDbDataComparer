@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using MySql.Data.MySqlClient;
+using Borland.Data;
 using System.Data;
 
-namespace DataAccessLib
+namespace DataAccessLib.OldDataAccess
 {
-    internal sealed class MySqlDataAccess : DataAccessBase
+    internal sealed class InterBase : OldDataAccessBase
     {
-        public MySqlDataAccess(string connStr) : base(connStr) { }
-        public MySqlDataAccess(string Server, string Port, string Database, string UserID, string Password) : base(Server, Port, Database, UserID, Password) { }
+        public InterBase(string connStr) : base(connStr) { }
+        public InterBase(string Data_Source, string User_ID, string Password) : base(Data_Source, User_ID, Password) { }
         internal override string BuildConnectionString(params string[] fields)
         {
-            return $"Data Source={fields[0]};Port={fields[1]};Database={fields[2]};User Id={fields[3]};Password={fields[4]};charset=utf8;pooling=true";
+            //"DriverName=Interbase;Database={0}:{1};RoleName=;User_Name={2};Password={3};SQLDialect=3;MetaDataAssemblyLoader=Borland.Data.TDBXInterbaseMetaDataCommandFactory,Borland.Data.DbxReadOnlyMetaData,Version=11.0.5000.0,Culture=neutral,PublicKeyToken=91d62ebb5b0d1b1b;GetDriverFunc=getSQLDriverINTERBASE;LibraryName=dbxint30.dll;VendorLib=GDS32.DLL";
+            return $"Provider=sibprovider;Data Source={fields[0]};User Id={fields[1]};Password={fields[2]};charset=utf8;pooling=true";
         }
         internal override string SetTimeOut(string connStr)
         {
-            var sb = new MySqlConnectionStringBuilder(connStr) { ConnectionTimeout = 5, AllowZeroDateTime = true };
+            var sb = new TAdoDbxConnectionStringBuilder { ConnectionString = connStr };
             //sb.AllowZeroDateTime = true;
             //sb.ConvertZeroDateTime = true;
             return sb.ToString();
@@ -23,7 +24,7 @@ namespace DataAccessLib
 
         internal override bool CheckConnection()
         {
-            using (var conn = new MySqlConnection(ConnectionString))
+            using (var conn = new TAdoDbxConnection(ConnectionString))
             {
                 var t = System.Threading.Tasks.Task.Factory.StartNew(() =>
                 {
@@ -48,16 +49,16 @@ namespace DataAccessLib
             }
         }
 
-        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, Action processCallBack = null)
         {
             var d = new DataSet();
-            using (var conn = new MySqlConnection(ConnectionString))
+            using (var conn = new TAdoDbxConnection(ConnectionString))
             {
                 conn.Open();
 
                 foreach (var tableName in tableNames)
                 {
-                    using (var adapter = new MySqlDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new TAdoDbxDataAdapter($"SELECT * FROM {tableName}", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
                         //d.Tables[tableName].Columns.Cast<DataColumn>().Where(c => c.DataType.Equals(typeof(DateTime))).ToList().ForEach(c => c.DataType = typeof(MySqlDateTime));
@@ -71,10 +72,10 @@ namespace DataAccessLib
 
         public override string[] QueryAllTableName()
         {
-            using (var conn = new MySqlConnection(ConnectionString))
+            using (var conn = new TAdoDbxConnection(ConnectionString))
             {
                 conn.Open();
-                using (var reader = new MySqlCommand("show tables", conn).ExecuteReader())
+                using (var reader = new TAdoDbxCommand { CommandText = "show tables", Connection = conn }.ExecuteReader())
                 {
                     var re = new List<string>();
                     while (reader.Read())

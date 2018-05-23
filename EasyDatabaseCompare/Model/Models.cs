@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reactive.Linq;
 
 namespace EasyDatabaseCompare.Model
 {
@@ -41,18 +42,22 @@ namespace EasyDatabaseCompare.Model
     {
         public static string GetUniquePrimaryKey(DataRow r, DataColumn[] primaryKeys)
         {
-            return string.Join("_/_", primaryKeys.Select(pk => r[pk.ColumnName]));
+            return primaryKeys.Length == 0 ? $"[No Primary Key]({r.GetHashCode()})" :
+                string.Join("_/_", primaryKeys.Select(pk => r[pk.ColumnName]));
         }
     }
     public class DataEntity
     {
-        public DataEntity(DataTable oldTable, DataTable newTable, Action createdCallBack = null)
+        public DataEntity(DataTable oldTable, DataTable newTable, Action createdCallBack = null, bool ignorePrimaryKey = false)
         {
             #region Check PrimaryKey
-            if (oldTable.PrimaryKey == null || oldTable.PrimaryKey.Length == 0)
-                throw new ArgumentException("First DataTable not have a valid primary key!");
-            if (newTable.PrimaryKey == null || newTable.PrimaryKey.Length == 0)
-                throw new ArgumentException("Second DataTable not have a valid primary key!");
+            if (!ignorePrimaryKey)
+            {
+                if (oldTable.PrimaryKey.Length == 0)
+                    throw new ArgumentException("First DataTable not have a valid primary key!");
+                if (newTable.PrimaryKey.Length == 0)
+                    throw new ArgumentException("Second DataTable not have a valid primary key!");
+            }
             #endregion
 
             #region Compare Columns
@@ -75,25 +80,41 @@ namespace EasyDatabaseCompare.Model
             var oldTableRows = oldTable.AsEnumerable();
             var newTableRows = newTable.AsEnumerable();
 
-            OldTableRows = oldTableRows.ToDictionary(r =>
-                Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
-
-            NewTableRows = newTableRows.ToDictionary(r =>
-                Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
-            #endregion
-            InsertRows = newTableRows.Except(oldTableRows, DataRowPrimaryKeyComparer.Default)
-                .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
-            DeleteRows = oldTableRows.Except(newTableRows, DataRowPrimaryKeyComparer.Default)
-                .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
-
-            var mayChangedRowsPrimaryKeys = oldTableRows.Intersect(newTableRows, DataRowPrimaryKeyComparer.Default)
-                .Select(r => Common.GetUniquePrimaryKey(r, PrimaryKeys));
-            UpDatedData = new Dictionary<string, DiffField>();
-            foreach (var key in mayChangedRowsPrimaryKeys)
+            if (ignorePrimaryKey)
             {
-                var diff = new DiffField(OldTableRows[key], NewTableRows[key]);
-                if (diff.DiffFields.Count > 0)
-                    UpDatedData.Add(key, diff);
+                OldTableRows = new Dictionary<string, DataRow>();
+                NewTableRows = new Dictionary<string, DataRow>();
+
+                InsertRows = newTableRows.Except(oldTableRows, DataRowCellComparer.Default)
+                    .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+                DeleteRows = oldTableRows.Except(newTableRows, DataRowCellComparer.Default)
+                    .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+            }
+            else
+            {
+                OldTableRows = oldTableRows.ToDictionary(r =>
+                    Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+                NewTableRows = newTableRows.ToDictionary(r =>
+                    Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+
+                InsertRows = newTableRows.Except(oldTableRows, DataRowPrimaryKeyComparer.Default)
+                    .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+                DeleteRows = oldTableRows.Except(newTableRows, DataRowPrimaryKeyComparer.Default)
+                    .ToDictionary(r => Common.GetUniquePrimaryKey(r, PrimaryKeys), r => r);
+            }
+            #endregion
+
+            UpDatedData = new Dictionary<string, DiffField>();
+            if (!ignorePrimaryKey)
+            {
+                var mayChangedRowsPrimaryKeys = oldTableRows.Intersect(newTableRows, DataRowPrimaryKeyComparer.Default)
+                    .Select(r => Common.GetUniquePrimaryKey(r, PrimaryKeys));
+                foreach (var key in mayChangedRowsPrimaryKeys)
+                {
+                    var diff = new DiffField(OldTableRows[key], NewTableRows[key]);
+                    if (diff.DiffFields.Count > 0)
+                        UpDatedData.Add(key, diff);
+                }
             }
             createdCallBack?.Invoke();
         }
@@ -131,34 +152,30 @@ namespace EasyDatabaseCompare.Model
             DiffFields = new Dictionary<DataColumn, object[]>();
             foreach (DataColumn c in columns)
             {
-                var q = DataRowComparer.Default.Equals(oldDataRow, newDataRow);
-                if (!q)
+                if (DataRowComparer.Default.Equals(oldDataRow, newDataRow)) continue;
+                var r = true;
+                var vo = oldDataRow[c.ColumnName];
+                var vn = newDataRow[c.ColumnName];
+                if (c.DataType.IsArray)
                 {
-                    var r = true;
-                    var vo = oldDataRow[c.ColumnName];
-                    var vn = newDataRow[c.ColumnName];
-                    if (c.DataType.IsArray)
+                    if (vo != vn)
                     {
-                        if (vo != vn)
+                        if (vo is IEnumerable ar1 && vn is IEnumerable ar2)
                         {
-                            if (vo is IEnumerable ar1 && vn is IEnumerable ar2)
-                            {
-                                var en1 = ar1.Cast<object>();
-                                var en2 = ar2.Cast<object>();
-                                r = en1.SequenceEqual(en2);
-                            }
-                            else
-                                r = false;
+                            var en1 = ar1.Cast<object>();
+                            var en2 = ar2.Cast<object>();
+                            r = en1.SequenceEqual(en2);
                         }
+                        else
+                            r = false;
                     }
-                    else if (c.DataType.IsPrimitive | c.DataType.IsValueType || c.DataType.Name == "String")
-                        r = Equals(oldDataRow[c.ColumnName], newDataRow[c.ColumnName]);
-                    else
-                        r = false;
-                    if (!r)
-                        DiffFields.Add(c, new[] { vo, vn });
-
                 }
+                else if (c.DataType.IsPrimitive | c.DataType.IsValueType || c.DataType.Name == "String")
+                    r = Equals(oldDataRow[c.ColumnName], newDataRow[c.ColumnName]);
+                else
+                    r = false;
+                if (!r)
+                    DiffFields.Add(c, new[] { vo, vn });
             }
         }
         public string UniquePrimaryKey { get; }
@@ -181,13 +198,43 @@ namespace EasyDatabaseCompare.Model
 
         public int GetHashCode(DataRow obj)
         {
-            int i = 0;
-            foreach (var c in obj.Table.PrimaryKey)
-            {
-                i ^= obj[c].GetHashCode();
-            }
-            return i;
+            return obj.Table.PrimaryKey.Aggregate(0, (current, c) => current ^ obj[c].GetHashCode());
         }
     }
+    public class DataRowCellComparer : IEqualityComparer<DataRow>
+    {
+        public static DataRowCellComparer Default { get; } = new DataRowCellComparer();
+        public bool Equals(DataRow x, DataRow y)
+        {
+            if (x is null || y is null) return false;
+            var re = true;
+            foreach (DataColumn c in x.Table.Columns)
+            {
+                if (c.DataType.IsArray)
+                {
+                    var arrX = x[c.ColumnName] as IEnumerable<object>;
+                    var arrY = y[c.ColumnName] as IEnumerable<object>;
+                    if (arrX is null || arrY is null)
+                        re &= Equals(arrX, arrY);
+                    else
+                        re &= arrX.SequenceEqual(arrY);
+                }
+                else
+                {
+                    re &= Equals(x[c.ColumnName], y[c.ColumnName]);
+                }
+            }
+            return re;
+            //var result = compareLogic.Compare(x.ItemArray, y.ItemArray);
+            //return result.AreEqual;
+            //return x != null && y != null && x.ItemArray.IsDeepEqual(y.ItemArray);
+            //var zip = x?.ItemArray.Zip(y?.ItemArray ?? throw new InvalidOperationException(), Tuple.Get);
+            //return (zip ?? throw new InvalidOperationException()).Aggregate(false, (current, t) => current & t.Item1.IsDeepEqual(t.Item2));
+        }
 
+        public int GetHashCode(DataRow obj)
+        {
+            return 0;
+        }
+    }
 }

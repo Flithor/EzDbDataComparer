@@ -5,6 +5,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,7 +24,8 @@ namespace EasyDatabaseCompare
         public MainWindow()
         {
             InitializeComponent();
-            SupportedDbList = DataAccessFactory.DbTypes;
+            SupportedDbList = ComparisonLib.DataAccessorInfo.SupportedDbConnectionStringFields.Keys;
+            //SupportedDbList = OldDataAccessFactory.DbTypes;
             //var t = new System.Timers.Timer(1000);
             //t.Elapsed += (s, e) =>
             //{
@@ -34,17 +38,17 @@ namespace EasyDatabaseCompare
             //t.Start();
         }
 
-        public string[] SupportedDbList
+        public IEnumerable<string> SupportedDbList
         {
-            get => (string[])GetValue(SupportedDbListProperty);
+            get => (IEnumerable<string>)GetValue(SupportedDbListProperty);
             set => SetValue(SupportedDbListProperty, value);
         }
         public static readonly DependencyProperty SupportedDbListProperty =
-            DependencyProperty.Register("SupportedDbList", typeof(string[]), typeof(MainWindow), new PropertyMetadata(new[] { "Empty" }));
+            DependencyProperty.Register("SupportedDbList", typeof(IEnumerable<string>), typeof(MainWindow), new PropertyMetadata(default(IEnumerable<string>)));
 
         private List<TextBox> Fields { get; } = new List<TextBox>();
 
-        private DataAccessBase DataAccess { get; set; }
+        private OldDataAccessBase OldDataAccess { get; set; }
 
 
         private void dbType_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -53,7 +57,8 @@ namespace EasyDatabaseCompare
             Fields.Clear();
             FieldsGrid.Children.Clear();
             FieldsGrid.ColumnDefinitions.Clear();
-            var fields = DataAccessFactory.GetDbTypeConnectionFields(e.AddedItems[0].ToString());
+            //var fields = OldDataAccessFactory.GetDbTypeConnectionFields(e.AddedItems[0].ToString());
+            var fields = ComparisonLib.DataAccessorInfo.SupportedDbConnectionStringFields[e.AddedItems[0].ToString()];
             var i = 0;
             var tbTemplate = FindResource("fieldTextBoxTemp") as ControlTemplate;
             foreach (var f in fields)
@@ -71,11 +76,13 @@ namespace EasyDatabaseCompare
             if (!CheckCanQuery()) return;
             try
             {
-                DataAccess = ChangeMode.IsChecked == true ?
-                    DataAccessFactory.Create(DbType.Text, ConnStr.Text) :
-                    DataAccessFactory.Create(DbType.Text, Fields.Select(f => f.Text).ToArray());
+                OldDataAccess = ChangeMode.IsChecked == true ?
+                    OldDataAccessFactory.Create(DbType.Text, ConnStr.Text) :
+                    OldDataAccessFactory.Create(DbType.Text, Fields.Select(f => f.Text).ToArray());
 
-                TableNames = DataAccess.QueryAllTableName().ToArray();
+                TableNames = OldDataAccess.QueryAllTableName().ToArray();
+                SelectedTableName.Clear();
+                _queryTablesFix = null;
 
                 ChangeMode.IsEnabled = false;
 
@@ -165,7 +172,7 @@ namespace EasyDatabaseCompare
         #endregion
 
         #region Get Second Time
-        private double _queryProcess2Count = 0;
+        private double _queryProcess2Count;
         public double QueryProcess2
         {
             get => (double)GetValue(QueryProcess2Property);
@@ -283,7 +290,7 @@ namespace EasyDatabaseCompare
                 }
             return true;
         }
-        
+
         private DataSet QueryAll(Action callBackAction)
         {
             DataSet d = new DataSet();
@@ -292,7 +299,7 @@ namespace EasyDatabaseCompare
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,
                     new Action<string[]>((tns) =>
                     {
-                        d = DataAccess.QueryTables(tns, true, callBackAction);
+                        d = OldDataAccess.QueryTables(tns, callBackAction);
                     }), QueryTablesFix);
             }
             catch (Exception ex)
@@ -302,106 +309,145 @@ namespace EasyDatabaseCompare
             return d;
         }
 
+        readonly Stopwatch watch = new Stopwatch();
+        private void StartActionWatch()
+        {
+            watch.Restart();
+        }
+
         private void btnComp_Click(object sender, RoutedEventArgs e)
         {
             if (data1.Tables.Count > 0 && data2.Tables.Count > 0)
             {
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
+                StartActionWatch();
                 CompReL.Items.Clear();
                 CompReT.Text = string.Empty;
 
                 CompReState.Text = "Comparing...";
-                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,
+
+                StartCompareData();
+            }
+        }
+
+        private void FinishCompare()
+        {
+            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,
                 new Action(() =>
                 {
-                    var tdic = CompareData();
-                    if (tdic.Length == 0)
+                    if (StaData.Tables == 0)
                     {
                         CompReState.Text = "Not found any changes in selected tables";
                         return;
                     }
-                    FillCompareResult(tdic);
                     CompReState.Inlines.Clear();
                     CompReState.Inlines.Add("Compare found ");
-                    CompReState.Inlines.Add(new Run(tdic.Length.ToString())
+                    CompReState.Inlines.Add(new Run(StaData.Tables.ToString())
                     {
                         Foreground = Brushes.Red
                     });
                     CompReState.Inlines.Add(" Table and ");
-                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.UpDatedData.Count).Sum().ToString())
+                    CompReState.Inlines.Add(new Run(StaData.Update.ToString())
                     {
                         Foreground = Brushes.Red
                     });
                     CompReState.Inlines.Add(" update Records, ");
-                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.InsertRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
+                    CompReState.Inlines.Add(new Run(StaData.Insert.ToString()) { Foreground = Brushes.Red });
                     CompReState.Inlines.Add(" insert Records, ");
-                    CompReState.Inlines.Add(new Run(tdic.Select(t => t.DeleteRows.Count).Sum().ToString()) { Foreground = Brushes.Red });
+                    CompReState.Inlines.Add(new Run(StaData.Delete.ToString()) { Foreground = Brushes.Red });
                     CompReState.Inlines.Add(" delete Records");
                     CompReState.Inlines.Add("\r\n");
                     watch.Stop();
                     CompReState.Inlines.Add($"Compare Spent Time: {watch.Elapsed}");
+                    CompReT.Text = StaData.jsonString.ToString();
                 }));
-
-            }
         }
 
-        private DataEntity[] CompareData()
+        private void StartCompareData()
         {
             CompareProcess = 0;
             var ts1 = data1.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length > 0);
             var ts2 = data2.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length > 0);
+            var ts1_Npk = data1.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length == 0);
+            var ts2_Npk = data2.Tables.Cast<DataTable>().Where(t => t.PrimaryKey.Length == 0);
             var tg = ts1.Zip(ts2, Tuple.Create);
-            var tdic = tg.Select(g =>
-                   {
-                       CompareProcessCallBack();
-                       return new DataEntity(g.Item1, g.Item2, EachDataEntityCreateCallBack);
-                   })
-            .Where(t => t.UpDatedData.Count > 0 || t.InsertRows.Count > 0 || t.DeleteRows.Count > 0).ToArray();
-            return tdic;
+            var tg_Npk = ts1_Npk.Zip(ts2_Npk, Tuple.Create);
+            //var tdic = tg.Select(g =>
+            //    {
+            //        CompareProcessCallBack();
+            //        return new DataEntity(g.Item1, g.Item2, EachDataEntityCreateCallBack);
+            //    })
+            //    .Concat(tg_Npk.Select(g =>
+            //    {
+            //        CompareProcessCallBack();
+            //        return new DataEntity(g.Item1, g.Item2, EachDataEntityCreateCallBack, true);
+            //    }))
+            //.Where(t => t.UpDatedData.Count > 0 || t.InsertRows.Count > 0 || t.DeleteRows.Count > 0).ToArray();
+
+            //var tgO = tg.ToObservable();
+            var tgO_Npk = tg_Npk.ToObservable();
+            var obtg = tg.Select(ob => Observable.Start(() => new DataEntity(ob.Item1, ob.Item2, EachDataEntityCreateCallBack), ThreadPoolScheduler.Instance)).ToObservable().Merge();
+            var obtg_Npk = tg_Npk.Select(ob => Observable.Start(() => new DataEntity(ob.Item1, ob.Item2, EachDataEntityCreateCallBack, true), ThreadPoolScheduler.Instance)).ToObservable().Merge();
+            StaData = new StatisticalData();
+            obtg.Merge(obtg_Npk)
+            .Where(t => t.UpDatedData.Count > 0 || t.InsertRows.Count > 0 || t.DeleteRows.Count > 0)
+                .Subscribe(FillCompareResult, FinishCompare);
         }
 
-        private void FillCompareResult(DataEntity[] tdic)
+        private class StatisticalData
         {
-            var sb = new StringBuilder();
-            foreach (var t in tdic)
+            public int Tables { get; set; }
+            public int Update { get; set; }
+            public int Insert { get; set; }
+            public int Delete { get; set; }
+            public StringBuilder jsonString { get; set; } = new StringBuilder();
+        }
+
+        private StatisticalData StaData;
+        private void FillCompareResult(DataEntity t)
+        {
+            CompareProcessCallBack();
+            var z = new DatabaseChangeContent
             {
-                var z = new DatabaseChangeContent
+                TableName = t.TableName,
+                UpdatedDatas = t.UpDatedData.Select(kvp => new UpdatedData
                 {
-                    TableName = t.TableName,
-                    UpdatedDatas = t.UpDatedData.Select(kvp => new UpdatedData
+                    UniquePrimaryKey = kvp.Key,
+                    UpdatedFields = kvp.Value.DiffFields.Select(diff => new UpdatedField
                     {
-                        UniquePrimaryKey = kvp.Key,
-                        UpdatedFields = kvp.Value.DiffFields.Select(diff => new UpdatedField
-                        {
-                            ColumnName = diff.Key.ColumnName,
-                            OldValue = diff.Value[0],
-                            NewValue = diff.Value[1]
-                        })
-                    }).ToArray(),
-                    InsertedDatas = t.InsertRows.Select(kvp => new InsertedData
-                    {
-                        UniquePrimaryKey = kvp.Key,
-                        Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
-                            .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
-                    }).ToArray(),
-                    DeletedDatas = t.DeleteRows.Select(kvp => new DeletedData
-                    {
-                        UniquePrimaryKey = kvp.Key,
-                        Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
-                            .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
-                    }).ToArray()
-                };
+                        ColumnName = diff.Key.ColumnName,
+                        OldValue = diff.Value[0],
+                        NewValue = diff.Value[1]
+                    })
+                }).ToArray(),
+                InsertedDatas = t.InsertRows.Select(kvp => new InsertedData
+                {
+                    UniquePrimaryKey = kvp.Key,
+                    Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
+                        .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
+                }).ToArray(),
+                DeletedDatas = t.DeleteRows.Select(kvp => new DeletedData
+                {
+                    UniquePrimaryKey = kvp.Key,
+                    Datas = kvp.Value.Table.Columns.Cast<DataColumn>()
+                        .ToDictionary(c => c.ColumnName, c => kvp.Value[c])
+                }).ToArray()
+            };
+            StaData.Tables += 1;
+            StaData.Update += z.UpdatedDatas.Length;
+            StaData.Insert += z.InsertedDatas.Length;
+            StaData.Delete += z.DeletedDatas.Length;
+            Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,
+            new Action(() =>
+            {
                 var dataItem = new DataTableListItem(z);
                 dataItem.TableNameClickEvent += CopyTableName;
                 dataItem.ShowTableData += DataItem_ShowTableData;
                 CompReL.Items.Add(dataItem);
-                sb.AppendLine($"{z.TableName}:");
-                sb.AppendLine(JsonConvert.SerializeObject(z, Formatting.Indented));
-                sb.AppendLine("=================================================");
-                //CompareProcessCallBack();
-            }
-            CompReT.Text = sb.ToString();
+                StaData.jsonString.AppendLine($"{z.TableName}:");
+                StaData.jsonString.AppendLine(JsonConvert.SerializeObject(z, Formatting.Indented));
+                StaData.jsonString.AppendLine("=================================================");
+            }));
+            //CompareProcessCallBack();
             //var w = new Window();
             //var tb = new TextBox()
             //{

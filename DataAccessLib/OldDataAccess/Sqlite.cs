@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
 
-namespace DataAccessLib
+namespace DataAccessLib.OldDataAccess
 {
-    internal sealed class SqliteDataAccess : DataAccessBase
+    internal sealed class Sqlite : OldDataAccessBase
     {
         #region Constructors
-        public SqliteDataAccess(string connStr) : base(connStr) { }
-        public SqliteDataAccess(string Data_Source, string Password) : base(Data_Source, Password) { }
+        public Sqlite(string connStr) : base(connStr) { }
+        public Sqlite(string Data_Source, string Password) : base(Data_Source, Password) { }
         #endregion
 
         #region Initialization
@@ -74,7 +72,7 @@ namespace DataAccessLib
 
         //↓This method is used to query all selected tables data
         //↓If can, get the table schema
-        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, Action processCallBack = null)
         {
             var d = new DataSet();
             using (var conn = new SQLiteConnection(ConnectionString))

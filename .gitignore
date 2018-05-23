@@ -8,3 +8,9 @@
 /packages
 /DataAccessLib/obj
 /DataAccessLib/bin
+/ComparisonLib/bin/Debug
+/ComparisonLib/obj/Debug
+/ComparisonLibTests/obj/Debug
+/ComparisonLibTests/bin/Debug
+/DataAccessLibUnitTest/obj/Debug
+/DataAccessLibUnitTest/bin/Debug

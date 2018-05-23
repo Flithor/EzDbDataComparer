@@ -14,22 +14,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-namespace DataAccessLib
+namespace DataAccessLib.DataAccessor
 {
-    internal sealed class NewDataAccess : DataAccessBase
+    internal sealed class NewDataAccess : DataAccessor
     {
-        #region Constructors
-        //↓Must write these 2 constructors
-        //↓They can be empty implementations
-        //↓This constructor is used to create a database connection by custom connection string
-        public NewDataAccess(string connStr) : base(connStr) { }
-
-        //↓This constructor is used to create a database connection by each connection string field
-        //↓Please use easy-to-understand parameter names, those will display on window
-        //↓Underscore(_) will be replace to space( )
-        public NewDataAccess(string Database, string UserID, string Password) : base(Database, UserID, Password) { }
-        #endregion
-
+        //override connectionstringformat 
         #region Initialization
         //↓This method is used to splicing connection strings by fields
         //↓Argument order follows constructor arguments
@@ -60,7 +49,7 @@ namespace DataAccessLib
 
         //↓This method is used to query all selected tables data
         //↓If can, get the table schema
-        public override DataSet QueryTables(string[] TableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] TableNames, Action processCallBack = null)
         {
             throw new NotImplementedException();
             //↓Please execute this action after each table successful query

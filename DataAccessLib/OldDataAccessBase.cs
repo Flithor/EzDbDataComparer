@@ -4,17 +4,19 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Ninject.Modules;
 
 namespace DataAccessLib
 {
-    public abstract class DataAccessBase
+    #region OldDataAccessCode
+    public abstract class OldDataAccessBase
     {
-        internal DataAccessBase(string connectionString)
+        internal OldDataAccessBase(string connectionString)
         {
             ConnectionString = SetTimeOut(connectionString);
             CheckConnection();
         }
-        internal DataAccessBase(params string[] fields)
+        internal OldDataAccessBase(params string[] fields)
         {
             ConnectionString = SetTimeOut(BuildConnectionString(fields));
             CheckConnection();
@@ -28,28 +30,28 @@ namespace DataAccessLib
 
         public abstract string[] QueryAllTableName();
 
-        public abstract DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null);
+        public abstract DataSet QueryTables(string[] tableNames, Action processCallBack = null);
     }
 
-    public class DataAccessFactory
+    public class OldDataAccessFactory
     {
-        public static DataAccessBase Create(string dbType, string connstr)
+        public static OldDataAccessBase Create(string dbType, string connstr)
         {
             Type t = GetDbType(dbType);
-            return (DataAccessBase)Activator.CreateInstance(t, connstr);
+            return (OldDataAccessBase)Activator.CreateInstance(t, connstr);
         }
-        public static DataAccessBase Create(string dbType, params string[] fields)
+        public static OldDataAccessBase Create(string dbType, params string[] fields)
         {
             var t = GetDbType(dbType);
-            return (DataAccessBase)Activator.CreateInstance(t, fields);
+            return (OldDataAccessBase)Activator.CreateInstance(t, fields);
         }
 
         private static Type GetDbType(string dbType)
         {
-            var t = GetDbTypes().Single(dbt => TrimTypeName(dbt.Name).Equals(dbType, StringComparison.OrdinalIgnoreCase));
+            var t = GetDbTypes().Single(dbt => dbt.Name.Equals(dbType, StringComparison.OrdinalIgnoreCase));
             if (t == null)
                 throw new ArgumentException($"{nameof(dbType)}: {dbType}");
-            if (!t.IsSubclassOf(typeof(DataAccessBase)))
+            if (!t.IsSubclassOf(typeof(OldDataAccessBase)))
                 throw new Exception("bug");
             return t;
         }
@@ -59,25 +61,19 @@ namespace DataAccessLib
         public static string[] GetDbTypeConnectionFields(string dbType)
         {
             var t = GetDbType(dbType);
-            return t.GetConstructors().First(c => c.GetParameters().Length > 1)?.GetParameters().Select(para => para.Name.Replace('_',' ')).ToArray();
+            return t.GetConstructors().First(c => c.GetParameters().Length > 1)?.GetParameters().Select(para => para.Name.Replace('_', ' ')).ToArray();
         }
 
         private static IEnumerable<Type> GetDbTypes()
         {
-            var assembly = Assembly.GetAssembly(typeof(DataAccessFactory));
-            return assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(DataAccessBase)));
-        }
-
-        private static string TrimTypeName(string name)
-        {
-            var pattern = "(.*)DataAccess";
-            var m = Regex.Match(name, pattern);
-            return m.Groups[1].Value;
+            var assembly = Assembly.GetAssembly(typeof(OldDataAccessFactory));
+            return assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(OldDataAccessBase)));
         }
 
         private static IEnumerable<string> GetDbTypesString()
         {
-            return GetDbTypes().Select(t => TrimTypeName(t.Name));
+            return GetDbTypes().Select(t => t.Name);
         }
     }
+    #endregion
 }

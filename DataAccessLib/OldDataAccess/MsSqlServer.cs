@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace DataAccessLib
+namespace DataAccessLib.OldDataAccess
 {
-    internal sealed class MsSqlServerDataAccess : DataAccessBase
+    internal sealed class MsSqlServer : OldDataAccessBase
     {
-        public MsSqlServerDataAccess(string connStr) : base(connStr) { }
-        public MsSqlServerDataAccess(string Server, string Database, string UserID, string Password) : base(Server, Database, UserID, Password) { }
+        public MsSqlServer(string connStr) : base(connStr) { }
+        public MsSqlServer(string Server, string Database, string UserID, string Password) : base(Server, Database, UserID, Password) { }
         internal override string BuildConnectionString(params string[] fields)
         {
             return $"Server={fields[0]};Database={fields[1]};User Id={fields[2]};Password={fields[3]}";
@@ -47,7 +47,7 @@ namespace DataAccessLib
             }
         }
 
-        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, Action processCallBack = null)
         {
             var d = new DataSet();
             using (var conn = new SqlConnection(ConnectionString))

@@ -1,14 +1,14 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 
-namespace DataAccessLib
+namespace DataAccessLib.OldDataAccess
 {
-    internal sealed class MsAccessDataAccess : DataAccessBase
+    internal sealed class MsAccess : OldDataAccessBase
     {
-        public MsAccessDataAccess(string connStr) : base(connStr) { }
-        public MsAccessDataAccess(string Data_Source, string UserID, string Password) : base(Data_Source, UserID, Password) { }
+        public MsAccess(string connStr) : base(connStr) { }
+        public MsAccess(string Data_Source, string UserID, string Password) : base(Data_Source, UserID, Password) { }
         internal override string BuildConnectionString(params string[] fields)
         {
             return $"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={fields[0]};User ID={fields[1]};Jet OLEDB:Database Password={fields[2]}";
@@ -49,7 +49,7 @@ namespace DataAccessLib
             }
         }
 
-        public override DataSet QueryTables(string[] tableNames, bool withSchma = true, Action processCallBack = null)
+        public override DataSet QueryTables(string[] tableNames, Action processCallBack = null)
         {
             var d = new DataSet();
             using (var conn = new OleDbConnection(ConnectionString))

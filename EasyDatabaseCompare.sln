@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Blend for Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyDatabaseCompare", "EasyDatabaseCompare\EasyDatabaseCompare.csproj", "{5EDDD2BC-B60B-446B-8BA4-0F610A33853B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLib", "DataAccessLib\DataAccessLib.csproj", "{7CA48413-2809-49B8-872C-1ED95944645A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessLibUnitTest", "DataAccessLibUnitTest\DataAccessLibUnitTest.csproj", "{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparisonLib", "ComparisonLib\ComparisonLib.csproj", "{B2D3732F-0150-45F3-8598-C52239A81654}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparisonLibTests", "ComparisonLibTests\ComparisonLibTests.csproj", "{B12778A0-D006-4E69-BB09-31D8BF1F624B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,8 +37,35 @@ Global
 		{7CA48413-2809-49B8-872C-1ED95944645A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7CA48413-2809-49B8-872C-1ED95944645A}.Release|x86.ActiveCfg = Release|x86
 		{7CA48413-2809-49B8-872C-1ED95944645A}.Release|x86.Build.0 = Release|x86
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Debug|x86.Build.0 = Debug|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Release|x86.ActiveCfg = Release|Any CPU
+		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Release|x86.Build.0 = Release|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|x86.Build.0 = Release|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Debug|x86.Build.0 = Debug|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|x86.ActiveCfg = Release|Any CPU
+		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF99F9BE-BE51-41C0-982C-C8172B593491}
 	EndGlobalSection
 EndGlobal
