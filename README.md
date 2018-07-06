@@ -5,8 +5,11 @@ Easy to find target database data changing!
 
 Very convenient when analyzing third-party software database changes!
 
-I didn't find the same type of public tool, so I made this.
+I found that there are many database comparer software, but most are very cumbersome, not suitable for analyzing third-party databases, and supported database also too less. 
 
+So, I made this.
+
+-------------------
 !! Database schema should not changed
 
 Accept:
