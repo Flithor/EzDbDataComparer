@@ -3,7 +3,11 @@ A simple database 2 time snapshot comparison tool
 
 Easy to find target database data changing!
 
-Database schema should not changed
+Very convenient when analyzing third-party software database changes!
+
+I didn't find the same type of public tool, so I made this.
+
+!! Database schema should not changed
 
 Accept:
 
@@ -27,3 +31,5 @@ This project is my practice & learn various design patterns project
 If possible, please try to use design pattern to extend it
 
 If not, it does not matter
+
+Used: Rx, Ninject
