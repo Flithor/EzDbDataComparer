@@ -12,10 +12,13 @@ Accept:
 |MicroSoft Sql Server|All|OK|
 |MicroSoft Access|All|OK|
 |MySQL|All|OK|
+|SQLite|After SQLite3|OK|
+|Firebird|Unkonw|OK|
+|InterBase|Unkonw|Maybe? <br /> Try Firebird|
 
 How to use
 -----------------------
-![](https://github.com/Flithor/EasyDatabaseCompare/blob/master/img.png)
+![](https://github.com/Flithor/EasyDatabaseCompare/blob/NewFramework/img.png)
 
 Special Note
 ------------------------
