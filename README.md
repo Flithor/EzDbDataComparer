@@ -5,7 +5,7 @@ Easy to find target database data changing!
 
 Very convenient when analyzing third-party software database changes!
 
-I found that there are many database comparer software, but most are very cumbersome, not suitable for analyzing third-party databases, and supported database also too less. 
+I found that there are many database comparer software, but most are very cumbersome, not suitable for analyzing third-party databases, and supported database also too less. <span style="background-color:#000">And most are not free.<span/>
 
 So, I made this.
 
