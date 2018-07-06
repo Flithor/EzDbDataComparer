@@ -40,6 +40,7 @@ namespace DataAccessLib
         public abstract string ConnectionStringFormat { get; }
 
         internal abstract string[] ConnectionStringFieldNames { get; }
+        internal virtual string[] ConnectionStringFieldDefaultValue { get; }
 
         public string ConnStr => DbConnectionStringInfo.ConnectionString;
 
@@ -68,11 +69,11 @@ namespace DataAccessLib
                 });
                 t.Wait(1000);
                 if (!t.IsCompleted)
-                    throw new Exception("connection time out");
+                    throw new TimeoutException("Check connection timeout!");
                 if (conn.State == ConnectionState.Open)
                     return true;
                 if (t.Result != null)
-                    throw t.Result;
+                    throw new DataException("An exception occurred during connection checking!", t.Result);
                 return false;
             }
         }
@@ -110,8 +111,7 @@ namespace DataAccessLib
         public IDataAccessor Get(string dbType, params string[] connStrNFields)
         {
             var connStrInfo = new DbConnectionStringInfo(connStrNFields);
-            var da = _root.Get<IDataAccessor>(dbType, new ConstructorArgument(nameof(connStrInfo), connStrInfo));
-            return da.TryDbConnection() ? da : null;
+            return _root.Get<IDataAccessor>(dbType, new ConstructorArgument(nameof(connStrInfo), connStrInfo));
         }
     }
 

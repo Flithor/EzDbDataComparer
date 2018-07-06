@@ -8,6 +8,7 @@ namespace DataAccessLib.Entities
 {
     public class DbConnectionStringInfo 
     {
+        public static DbConnectionStringInfo Empty { get; } = new DbConnectionStringInfo(string.Empty);
         public DbConnectionStringInfo(params string[] fields)
         {
             if (fields.Length < 1)

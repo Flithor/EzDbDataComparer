@@ -10,9 +10,16 @@ namespace ComparisonLib
     public static class DataAccessorInfo
     {
         private static InternalDictionary<string, string[]> _supportedDbConnectionStringFields;
-        internal static string[] SupportedDbTypeNames => DataAccessLib.DataAccessorInfo.SupportedDbTypeNames;
+        private static InternalDictionary<string, string[]> _supportedDbConnectionStringFieldsDefaultValue;
+        //internal static string[] SupportedDbTypeNames => DataAccessLib.DataAccessorInfo.SupportedDbTypeNames;
         public static InternalDictionary<string, string[]> SupportedDbConnectionStringFields =>
             _supportedDbConnectionStringFields ?? (_supportedDbConnectionStringFields =
                 DataAccessLib.DataAccessorInfo.SupportedDbConnectionStringFields);
+
+        public static InternalDictionary<string, string[]> SupportedDbConnectionStringFieldsDefaultValue =>
+            _supportedDbConnectionStringFieldsDefaultValue ?? (_supportedDbConnectionStringFieldsDefaultValue =
+            DataAccessLib.DataAccessorInfo.SupportedDbConnectionStringFieldsDefaultValue);
+
+
     }
 }

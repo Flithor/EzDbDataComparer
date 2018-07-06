@@ -13,6 +13,7 @@ namespace DataAccessLib.DataAccessor
         public override string ConnectionStringFormat => "Server={0};Database={1};User Id={2};Password={3}";
 
         internal override string[] ConnectionStringFieldNames { get; } = { "Server", "Database", "UserID", "Password" };
+        internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, null, "sa", "sa" };
 
         internal override bool CheckConnection(string connStr) => CheckConnection<SqlConnection>(connStr);
 
@@ -24,7 +25,7 @@ namespace DataAccessLib.DataAccessor
                 conn.Open();
                 foreach (var tableName in tableNames)
                 {
-                    using (var adapter = new SqlDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new SqlDataAdapter($"SELECT * FROM [{tableName}]", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
                         adapter.Fill(d, tableName);
@@ -41,7 +42,7 @@ namespace DataAccessLib.DataAccessor
             using (var conn = new SqlConnection(ConnStr))
             {
                 conn.Open();
-                using (var adapter = new SqlDataAdapter($"SELECT * FROM {tableName}", conn))
+                using (var adapter = new SqlDataAdapter($"SELECT * FROM [{tableName}]", conn))
                 {
                     adapter.FillSchema(dt, SchemaType.Mapped);
                     adapter.Fill(dt);

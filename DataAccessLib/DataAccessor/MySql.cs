@@ -12,7 +12,8 @@ namespace DataAccessLib.DataAccessor
         public override string ConnectionStringFormat =>
             "Data Source={0};Port={1};Database={2};User Id={3};Password={4};charset=utf8;pooling=true";
 
-        internal override string[] ConnectionStringFieldNames { get; } = { "Server", "Database", "Port", "UserID", "Password" };
+        internal override string[] ConnectionStringFieldNames { get; } = { "Server", "Port", "Database", "UserID", "Password" };
+        internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, "3306", null, "root", null };
 
         internal override bool CheckConnection(string connStr) => CheckConnection<MySqlConnection>(connStr);
 

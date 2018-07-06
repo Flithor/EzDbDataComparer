@@ -28,6 +28,10 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <ContentSQLiteInteropFiles>true</ContentSQLiteInteropFiles>
+    <CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
+    <CleanSQLiteInteropFiles>false</CleanSQLiteInteropFiles>
+    <CollectSQLiteInteropFiles>false</CollectSQLiteInteropFiles>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -42,6 +46,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,6 +57,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +68,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -72,6 +79,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -83,6 +91,10 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -100,6 +112,9 @@
     </Reference>
     <Reference Include="System.Reactive.Windows.Threading, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.Windows.Threading.3.1.1\lib\net45\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
@@ -120,14 +135,45 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converter\CheckCellNullConverter.cs" />
+    <Compile Include="Converter\CommandParameterConverter.cs" />
+    <Compile Include="Converter\CompareNearbyCellConverter.cs" />
+    <Compile Include="Converter\FieldsToTextBox.cs" />
+    <Compile Include="Converter\SelectedCellToInfoConverter.cs" />
+    <Compile Include="Converter\TextBlockHighlightSpanConverter.cs" />
+    <Compile Include="Converter\TextboxToField.cs" />
+    <Compile Include="LogicLayer\DataCacheManager.cs" />
+    <Compile Include="Model\DataCacheModel.cs" />
+    <Compile Include="Module.cs" />
+    <Compile Include="SampleData\SampleDataSource\SampleDataSource.xaml.cs">
+      <DependentUpon>SampleDataSource.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Service\DataService.cs" />
+    <Compile Include="StyleSelectors\ShowDiffSelector.cs" />
     <Compile Include="TopMsg.cs" />
-    <Compile Include="ViewModel\DataTableComparer.cs" />
-    <Compile Include="ViewModel\QueryDataModel.cs" />
+    <Compile Include="UserControls\TextBlockExtensions.cs" />
+    <Compile Include="UserControls\DataGridAutoFitColumn.cs" />
+    <Compile Include="ViewModel\WindowViewModel.CodeForDesign.cs">
+      <DependentUpon>WindowViewModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\WindowViewModel.Command.cs">
+      <DependentUpon>WindowViewModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\WindowViewModel.Command.Handler.cs">
+      <DependentUpon>WindowViewModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\WindowViewModel.cs" />
+    <Compile Include="ViewModel\WindowViewModel.Properties.cs">
+      <DependentUpon>WindowViewModel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\WindowViewModel.PropertyNotifyHandler.cs">
+      <DependentUpon>WindowViewModel.cs</DependentUpon>
+    </Compile>
     <Page Include="ControlResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="DataTableListItem.xaml">
+    <Page Include="UserControls\DataTableListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -139,14 +185,17 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DataTableListItem.xaml.cs">
+    <Compile Include="UserControls\DataTableListItem.xaml.cs">
       <DependentUpon>DataTableListItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\Models.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignTimeOnly>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -173,15 +222,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="SampleData\SampleDataSource\SampleDataSource.xsd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ComparisonLib\ComparisonLib.csproj">
       <Project>{b2d3732f-0150-45f3-8598-c52239a81654}</Project>
       <Name>ComparisonLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DataAccessLib\DataAccessLib.csproj">
-      <Project>{7ca48413-2809-49b8-872c-1ed95944645a}</Project>
-      <Name>DataAccessLib</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +255,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ThirdPartyResources\Microsoft\DatabaseAuditSpecification_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AccessLayer\" />
+    <Folder Include="DataStore\DataStore\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

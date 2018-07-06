@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Blend for Visual Studio 15
 VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyDatabaseCompare", "EasyDatabaseCompare\EasyDatabaseCompare.csproj", "{5EDDD2BC-B60B-446B-8BA4-0F610A33853B}"
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparisonLib", "ComparisonLib\ComparisonLib.csproj", "{B2D3732F-0150-45F3-8598-C52239A81654}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparisonLibTests", "ComparisonLibTests\ComparisonLibTests.csproj", "{B12778A0-D006-4E69-BB09-31D8BF1F624B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataModelsLib", "DataModelsLib\DataModelsLib.csproj", "{067DAE12-12AD-445E-AC72-C0848DACC0EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,8 +49,8 @@ Global
 		{7EC862CD-A0BD-477E-BCB3-D9684AA2D155}.Release|x86.Build.0 = Release|Any CPU
 		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.ActiveCfg = Debug|x86
+		{B2D3732F-0150-45F3-8598-C52239A81654}.Debug|x86.Build.0 = Debug|x86
 		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B2D3732F-0150-45F3-8598-C52239A81654}.Release|x86.ActiveCfg = Release|Any CPU
@@ -61,6 +63,14 @@ Global
 		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|x86.ActiveCfg = Release|Any CPU
 		{B12778A0-D006-4E69-BB09-31D8BF1F624B}.Release|x86.Build.0 = Release|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Debug|x86.ActiveCfg = Debug|x86
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Debug|x86.Build.0 = Debug|x86
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Release|x86.ActiveCfg = Release|Any CPU
+		{067DAE12-12AD-445E-AC72-C0848DACC0EA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

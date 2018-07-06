@@ -22,7 +22,7 @@ namespace DataAccessLib.DataAccessor
                     //.Where(t=>typeof(IDataAccessor).IsAssignableFrom(t))
                     .InheritedFrom<DataAccessorBase>()
                     .BindSingleInterface()
-                    .Configure((b, c) => b.InSingletonScope().Named(c.Name)));
+                    .Configure((b, c) => b.Named(c.Name)));
         }
     }
 }

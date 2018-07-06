@@ -12,7 +12,7 @@ namespace DataAccessLib
     {
         public override void Load()
         {
-            Kernel.?Load<DataAccessor.Module>();
+            Kernel?.Load<DataAccessor.Module>();
             Bind<IDataAccessorFactory>().To<DataAccessorFactory>().InSingletonScope();
         }
     }

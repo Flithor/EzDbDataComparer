@@ -73,16 +73,19 @@
                         <VisualBrush AlignmentX="Left"
                                      AlignmentY="Center"
                                      Stretch="None"
-                                     ViewboxUnits="RelativeToBoundingBox">
+                                     ViewboxUnits="RelativeToBoundingBox"
+                                     ViewportUnits="RelativeToBoundingBox"
+                                     Viewbox="-0.1,0,1,1">
                             <VisualBrush.Visual>
-                                <TextBlock Padding="2,0"
-                                           Foreground="Silver">Filter</TextBlock>
+                                <TextBlock Foreground="Silver">Filter</TextBlock>
                             </VisualBrush.Visual>
                         </VisualBrush>
                     </Setter.Value>
                 </Setter>
             </MultiTrigger>
         </Style.Triggers>
+        <Setter Property="Text"
+                Value="{x:Null}" />
     </Style>
     <VisualBrush Stretch="None"
                  AlignmentX="Left"
@@ -133,7 +136,7 @@
                    Padding="2,0"
                    HorizontalAlignment="Left"
                    BorderBrush="#FFABADB3"
-                   BorderThickness="1,1,0,1" />
+                   BorderThickness="0,1,0,1" />
             <Border Name="Border"
                     BorderThickness="1"
                     BorderBrush="#FFABADB3">
@@ -168,6 +171,31 @@
                 <StackPanel IsItemsHost="True"
                             KeyboardNavigation.DirectionalNavigation="Cycle" />
             </ScrollViewer>
+        </Border>
+    </ControlTemplate>
+    <!--<ControlTemplate x:Key="connFieldsList"
+                     TargetType="ItemsControl">
+        
+    </ControlTemplate>-->
+    <DataTemplate x:Key="fieldsTextboxs"
+                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
+        <TextBox Tag="{Binding FieldName, Mode=OneWay}"
+                 Template="{StaticResource fieldTextBoxTemp}"
+                 Text="{Binding FieldValue}" />
+    </DataTemplate>
+    <ItemsPanelTemplate x:Key="connFieldsList">
+        <UniformGrid IsItemsHost="True"
+                     Columns="{Binding Fields.Count}" />
+    </ItemsPanelTemplate>
+    <ControlTemplate x:Key="DataGridButtonCellTemplate"
+                     TargetType="{x:Type Button}">
+        <Border>
+            <ContentPresenter x:Name="contentPresenter"
+                              Focusable="False"
+                              RecognizesAccessKey="False"
+                              HorizontalAlignment="Center"
+                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                              VerticalAlignment="Center" />
         </Border>
     </ControlTemplate>
 </ResourceDictionary>

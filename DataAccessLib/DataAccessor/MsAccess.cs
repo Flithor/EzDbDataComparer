@@ -13,7 +13,7 @@ namespace DataAccessLib.DataAccessor
         public override string ConnectionStringFormat =>
             "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};User ID={1};Jet OLEDB:Database Password={2}";
 
-        internal override string[] ConnectionStringFieldNames { get; } = { "Data_Source", "UserID", "Password" };
+        internal override string[] ConnectionStringFieldNames { get; } = { "Data Source", "UserID", "Password" };
 
         internal override bool CheckConnection(string connStr) => CheckConnection<OleDbConnection>(connStr);
 
@@ -25,7 +25,7 @@ namespace DataAccessLib.DataAccessor
                 conn.Open();
                 foreach (var tableName in tableNames)
                 {
-                    using (var adapter = new OleDbDataAdapter($"SELECT * FROM {tableName}", conn))
+                    using (var adapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
                         adapter.Fill(d, tableName);
@@ -42,7 +42,7 @@ namespace DataAccessLib.DataAccessor
             using (var conn = new OleDbConnection(ConnStr))
             {
                 conn.Open();
-                using (var adapter = new OleDbDataAdapter($"SELECT * FROM {tableName}", conn))
+                using (var adapter = new OleDbDataAdapter($"SELECT * FROM [{tableName}]", conn))
                 {
                     adapter.FillSchema(dt, SchemaType.Mapped);
                     adapter.Fill(dt, tableName);

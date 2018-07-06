@@ -1,0 +1,19 @@
+﻿<!--
+   *********  请勿修改此文件   *********
+   此文件由设计工具再生成。更改
+   此文件可能会导致错误。
+-->
+<SampleDataSource:SampleDataSource xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource">
+	<SampleDataSource:SampleDataSource.FilteredComparerResultOverview>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Cras class" Same="75" Changed="88" Inserted="52" Deleted="20"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Aliquam curae aenean" Same="28" Changed="78" Inserted="32" Deleted="70"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Mauris nam sed integer" Same="18" Changed="43" Inserted="43" Deleted="94"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Duis nullam maecenas" Same="32" Changed="67" Inserted="82" Deleted="18"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Aptent praesent accumsan" Same="26" Changed="79" Inserted="35" Deleted="50"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Auctor donec nunc" Same="66" Changed="69" Inserted="44" Deleted="36"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Congue dis" Same="63" Changed="52" Inserted="68" Deleted="73"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Etiam fusce" Same="60" Changed="48" Inserted="18" Deleted="24"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Amet lorem quisque bibendum" Same="65" Changed="52" Inserted="30" Deleted="94"/>
+		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Ante cursus" Same="91" Changed="42" Inserted="17" Deleted="85"/>
+	</SampleDataSource:SampleDataSource.FilteredComparerResultOverview>
+</SampleDataSource:SampleDataSource>

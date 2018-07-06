@@ -1,21 +1,145 @@
-﻿<Window x:Name="Window"
-        x:Class="EasyDatabaseCompare.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:VM="clr-namespace:EasyDatabaseCompare.ViewModel"
         xmlns:local="clr-namespace:EasyDatabaseCompare"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:conv="clr-namespace:EasyDatabaseCompare.Converter"
+        xmlns:data="clr-namespace:System.Data;assembly=System.Data"
+        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
+        xmlns:uc="clr-namespace:EasyDatabaseCompare.UserControls"
+        x:Name="Window"
+        x:Class="EasyDatabaseCompare.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow">
+        Title="EasyDatabaseComparer"
+        d:DataContext="{d:DesignInstance {x:Type VM:WindowViewModel}, IsDesignTimeCreatable=True}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ControlResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <conv:CommandParameterConverter x:Key="CommandParameterConverter" />
+            <!--<cov:FieldsToTextBox x:Key="fieldsToTextBox" />-->
+            <conv:SelectedCellToInfoConverter x:Key="SelectedCellToInfoConverter" />
+            <Style x:Key="DisplayNullDataGridTextColumnStyle"
+                   TargetType="{x:Type TextBlock}">
+                <Style.Resources>
+                    <conv:CheckCellNullConverter x:Key="CheckCellNullConverter" />
+                </Style.Resources>
+                <Setter Property="Margin"
+                        Value="2,0" />
+                <Style.BasedOn>
+                    <StaticResource ResourceKey="{x:Type TextBlock}" />
+                </Style.BasedOn>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Converter={StaticResource CheckCellNullConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridCell}}}"
+                                 Value="True">
+                        <Setter Property="Foreground"
+                                Value="#FF555555" />
+                        <Setter Property="FontStyle"
+                                Value="Italic" />
+                        <Setter Property="Padding"
+                                Value="4,0,0,0" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="ColumnHeaderGripperStyle"
+                   TargetType="{x:Type Thumb}">
+                <Setter Property="Width"
+                        Value="8" />
+                <Setter Property="Background"
+                        Value="Transparent" />
+                <Setter Property="Cursor"
+                        Value="SizeWE" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Thumb}">
+                            <Border Background="{TemplateBinding Background}"
+                                    Padding="{TemplateBinding Padding}" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="DetailDataOverviewColumnHeaderStyle"
+                   TargetType="{x:Type DataGridColumnHeader}"
+                   BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                <EventSetter Event="MouseDoubleClick"
+                             Handler="DetailOverviewHeaderClickEventHandle" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                            <Grid>
+                                <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}"
+                                                             BorderThickness="{TemplateBinding BorderThickness}"
+                                                             Background="{TemplateBinding Background}"
+                                                             IsClickable="{TemplateBinding CanUserSort}"
+                                                             IsPressed="{TemplateBinding IsPressed}"
+                                                             IsHovered="{TemplateBinding IsMouseOver}"
+                                                             Padding="{TemplateBinding Padding}"
+                                                             SortDirection="{TemplateBinding SortDirection}"
+                                                             SeparatorBrush="{TemplateBinding SeparatorBrush}"
+                                                             SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      RecognizesAccessKey="False"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      ToolTip="{Binding Path=(DataGridColumnHeader.Column).(uc:DataGridAutoFitColumn.ColumnContextType), RelativeSource={RelativeSource AncestorType=DataGridColumnHeader}}" />
+                                </Themes:DataGridHeaderBorder>
+                                <Thumb x:Name="PART_LeftHeaderGripper"
+                                       HorizontalAlignment="Left"
+                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
+                                <Thumb x:Name="PART_RightHeaderGripper"
+                                       HorizontalAlignment="Right"
+                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!--<Style x:Key="DetailDataOverviewDiffCellStyle"
+                   TargetType="{x:Type DataGridCell}">
+                <Style.Resources>
+                    <conv:CompareNearbyCellConverter x:Key="CompareNearbyCellConverter" />
+                </Style.Resources>
+                <Style.BasedOn>
+                    <StaticResource ResourceKey="{x:Type DataGridCell}" />
+                </Style.BasedOn>
+                <Style.Triggers>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding (DataGridRow.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}"
+                                       Value="0" />
+                            <Condition Binding="{Binding (ItemsControl.ItemsSource).(data:DataView.Table).(data:DataTable.TableName), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                       Value="Changed" />
+                            <Condition Binding="{Binding ConverterParameter=Next, Converter={StaticResource CompareNearbyCellConverter}, RelativeSource={RelativeSource Self}}"
+                                       Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background"
+                                Value="#5500FF00" />
+                    </MultiDataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding (DataGridRow.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}"
+                                       Value="1" />
+                            <Condition Binding="{Binding (ItemsControl.ItemsSource).(data:DataView.Table).(data:DataTable.TableName), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                       Value="Changed" />
+                            <Condition Binding="{Binding ConverterParameter=Previous, Converter={StaticResource CompareNearbyCellConverter}, RelativeSource={RelativeSource Self}}"
+                                       Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background"
+                                Value="#55FF0000" />
+                    </MultiDataTrigger>
+                </Style.Triggers>
+            </Style>-->
         </ResourceDictionary>
     </Window.Resources>
     <local:TopMsg x:Name="TopMsg"
-                  Template="{StaticResource topMsgTemp}">
+                  Template="{StaticResource topMsgTemp}"
+                  RenderTransformOrigin="0.5,0.5">
         <Grid UseLayoutRounding="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -38,7 +162,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="17" />
                     </Grid.ColumnDefinitions>
-                    <Grid.Triggers>
+                    <!--<Grid.Triggers>
                         <EventTrigger SourceName="ChangeMode"
                                       RoutedEvent="ToggleButton.Unchecked">
                             <BeginStoryboard>
@@ -57,23 +181,21 @@
                         </EventTrigger>
                         <EventTrigger SourceName="ChangeMode"
                                       RoutedEvent="ToggleButton.Checked">
-                            <EventTrigger.Actions>
-                                <BeginStoryboard>
-                                    <Storyboard FillBehavior="HoldEnd">
-                                        <ThicknessAnimation From="0,-17,0,0"
-                                                            To="0"
-                                                            Storyboard.TargetName="ConnStrGrid"
-                                                            Storyboard.TargetProperty="Margin"
-                                                            Duration="0:0:0.5">
-                                            <ThicknessAnimation.EasingFunction>
-                                                <QuinticEase EasingMode="EaseOut" />
-                                            </ThicknessAnimation.EasingFunction>
-                                        </ThicknessAnimation>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard FillBehavior="HoldEnd">
+                                    <ThicknessAnimation From="0,-17,0,0"
+                                                        To="0"
+                                                        Storyboard.TargetName="ConnStrGrid"
+                                                        Storyboard.TargetProperty="Margin"
+                                                        Duration="0:0:0.5">
+                                        <ThicknessAnimation.EasingFunction>
+                                            <QuinticEase EasingMode="EaseOut" />
+                                        </ThicknessAnimation.EasingFunction>
+                                    </ThicknessAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
                         </EventTrigger>
-                    </Grid.Triggers>
+                    </Grid.Triggers>-->
                     <Grid UseLayoutRounding="True">
                         <Label Content="Database Type"
                                Padding="2,0"
@@ -83,18 +205,26 @@
                                FontSize="11"
                                UseLayoutRounding="True" />
                         <ComboBox x:Name="DbType"
-                                  ItemsSource="{Binding SupportedDbList, ElementName=Window}"
+                                  Text="{Binding SelecctedDbType}"
+                                  ItemsSource="{Binding SurpportDbType}"
                                   SelectedIndex="0"
                                   IsSynchronizedWithCurrentItem="True"
                                   Padding="3,1"
                                   Margin="82.727,0,0,0"
-                                  SelectionChanged="dbType_SelectionChanged"
                                   UseLayoutRounding="True" />
                     </Grid>
-                    <Grid x:Name="FieldsGrid"
-                          Grid.Column="1"
-                          UseLayoutRounding="True" />
-                    <Grid x:Name="ConnStrGrid"
+                    <!--Content="{Binding DbConnectionFields}"
+                                      ContentTemplate="{StaticResource fieldsTextboxs}"-->
+                    <!--</UniformGrid>-->
+                    <!--<UniformGrid x:Name="FieldsGrid"
+                                 Grid.Column="1"
+                                 UseLayoutRounding="True">-->
+                    <ItemsControl x:Name="FieldsGrid"
+                                  Grid.Column="1"
+                                  ItemsSource="{Binding Fields}"
+                                  ItemTemplate="{StaticResource fieldsTextboxs}"
+                                  ItemsPanel="{DynamicResource connFieldsList}" />
+                    <!--<Grid x:Name="ConnStrGrid"
                           Grid.Column="1"
                           Margin="0,-17,0,0"
                           VerticalAlignment="Top"
@@ -110,12 +240,12 @@
                                  VerticalAlignment="Top"
                                  Margin="109,0,0,0"
                                  UseLayoutRounding="True" />
-                    </Grid>
+                    </Grid>-->
+
                     <ToggleButton x:Name="ChangeMode"
                                   Grid.Column="2"
-                                  Checked="changeMode_Checked"
-                                  Unchecked="changeMode_Unchecked"
-                                  UseLayoutRounding="True">
+                                  UseLayoutRounding="True"
+                                  IsChecked="{Binding CustomConnectionStringMode}">
                         <Image Source="ThirdPartyResources/Microsoft/SwitchSourceOrTarget_16x.png"
                                RenderTransformOrigin="0.5,0.5"
                                Stretch="UniformToFill">
@@ -128,22 +258,22 @@
                     </ToggleButton>
                 </Grid>
                 <Button x:Name="CheckConn"
+                        Command="{Binding CheckConnectionCommand}"
                         Content="Check"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Width="60"
                         Padding="0"
-                        Click="checkConn_Click"
                         Margin="0,0,77,0"
                         UseLayoutRounding="True" />
                 <ToggleButton x:Name="ShowFilter"
+                              IsEnabled="{Binding CanSelectTable}"
                               Content="↓ Filter ↓"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Top"
                               Width="60"
                               Padding="0"
                               Margin="0,0,17,0"
-                              IsEnabled="False"
                               UseLayoutRounding="True" />
                 <Button x:Name="Reset"
                         HorizontalAlignment="Right"
@@ -151,12 +281,11 @@
                         Width="17"
                         Padding="0"
                         Margin="0"
-                        Click="reset_Click"
                         UseLayoutRounding="True">
                     <Button.ContextMenu>
                         <ContextMenu ItemsSource="{Binding}">
                             <ContextMenu.ItemContainerStyle>
-                                <Style TargetType="MenuItem">
+                                <Style TargetType="{x:Type MenuItem}">
                                     <Setter Property="StaysOpenOnClick"
                                             Value="True" />
                                     <Setter Property="IsSubmenuOpen"
@@ -166,7 +295,7 @@
                             <MenuItem>
                                 <MenuItem.Header>123455667</MenuItem.Header>
                                 <MenuItem>
-                                    Sub12345
+                                    <System:String>Sub12345</System:String>
                                 </MenuItem>
                             </MenuItem>
                         </ContextMenu>
@@ -183,54 +312,58 @@
                        PlacementTarget="{Binding ElementName=ShowFilter}"
                        Width="196"
                        MaxHeight="400">
-                    <Grid Background="White">
+                    <Grid Background="White"
+                          RenderTransformOrigin="0.5,0.5">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="15" />
                             <RowDefinition Height="auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <CheckBox x:Name="IsBlackList"
+                        <Rectangle Grid.Row="0"
+                                   Fill="#FF3580CB" />
+                        <CheckBox Grid.Row="1"
+                                  IsChecked="{Binding BlackListMode}"
+                                  x:Name="IsBlackList"
                                   HorizontalAlignment="Left"
                                   Padding="1,1,0,0"
                                   Margin="0"
-                                  VerticalContentAlignment="Stretch">Black List Mode</CheckBox>
-                        <TextBox Grid.Row="0"
+                                  VerticalContentAlignment="Stretch"
+                                  Content="Black List Mode" />
+                        <!--<TextBox Grid.Row="1"
                                  x:Name="FilterStr"
-                                 TextChanged="filterStr_TextChanged"
                                  HorizontalAlignment="Right"
                                  Width="87.805"
-                                 Style="{StaticResource filterTBoxStyle}" />
-                        <ListBox Grid.Row="1"
+                                 Style="{StaticResource filterTBoxStyle}" />-->
+                        <ListBox Grid.Row="2"
+                                 ItemsSource="{Binding TableNames}"
+                                 SelectedItem="{Binding SelectedTables}"
                                  x:Name="FilterTableList"
-                                 SelectionMode="Multiple"
-                                 SelectionChanged="filterTableList_SelectionChanged" />
+                                 SelectionMode="Multiple" />
                     </Grid>
                 </Popup>
             </Grid>
             <Button x:Name="Get1"
+                    Command="{Binding QuerySourceCommand}"
                     Grid.Row="1"
                     Grid.Column="0"
-                    Click="get1_Click"
-                    IsEnabled="False"
+                    IsEnabled="{Binding CanQuerySource}"
                     UseLayoutRounding="True">
-                <TextBlock>
-                    <Span BaselineAlignment="Top">
-                        <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
-                               Stretch="None" />
-                    </Span> Get First Snapshot
-                </TextBlock>
+                <TextBlock><Span BaselineAlignment="Top"><InlineUIContainer>
+                            <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
+                                   Stretch="None" />
+                        </InlineUIContainer></Span><Run Text=" Get First Snapshot" /></TextBlock>
             </Button>
+
             <Button x:Name="Get2"
+                    Command="{Binding QueryTargetCommand}"
+                    IsEnabled="{Binding CanQueryTarget}"
                     Grid.Row="1"
                     Grid.Column="1"
-                    Click="get2_Click"
-                    IsEnabled="False"
                     UseLayoutRounding="True">
-                <TextBlock>
-                    <Span BaselineAlignment="Top">
-                        <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
-                               Stretch="None" />
-                    </Span> Get Second Snapshot
-                </TextBlock>
+                <TextBlock><Span BaselineAlignment="Top"><InlineUIContainer>
+                            <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
+                                   Stretch="None" />
+                        </InlineUIContainer></Span><Run Text=" Get Second Snapshot" /></TextBlock>
             </Button>
             <Rectangle x:Name="Pro1"
                        Height="3"
@@ -244,7 +377,7 @@
                        UseLayoutRounding="True">
                 <Rectangle.LayoutTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding QueryProcess1, ElementName=Window}" />
+                        <ScaleTransform ScaleX="{Binding QuerySourceProcess}" />
                     </TransformGroup>
                 </Rectangle.LayoutTransform>
             </Rectangle>
@@ -260,7 +393,7 @@
                        UseLayoutRounding="True">
                 <Rectangle.LayoutTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleX="{Binding QueryProcess2, ElementName=Window}" />
+                        <ScaleTransform ScaleX="{Binding QueryTargetProcess}" />
                     </TransformGroup>
                 </Rectangle.LayoutTransform>
             </Rectangle>
@@ -280,16 +413,12 @@
                     BorderThickness="0"
                     Background="{x:Null}"
                     BorderBrush="{x:Null}"
-                    Foreground="{x:Null}"
-                    Click="showTableMenu"
-                    PreviewMouseUp="ignoreRClick">
-                <Path Fill="Black"
-                      Data="{StaticResource invTriangle}" />
+                    Foreground="{x:Null}">
                 <Button.ContextMenu>
                     <ContextMenu x:Name="TableNamesMenu"
                                  ItemsSource="{Binding}">
                         <ContextMenu.ItemContainerStyle>
-                            <Style TargetType="MenuItem">
+                            <Style TargetType="{x:Type MenuItem}">
                                 <Setter Property="StaysOpenOnClick"
                                         Value="True" />
                                 <Setter Property="IsSubmenuOpen"
@@ -303,6 +432,8 @@
                         </ContextMenu.ItemTemplate>-->
                     </ContextMenu>
                 </Button.ContextMenu>
+                <Path Fill="Black"
+                      Data="{StaticResource invTriangle}" />
             </Button>
             <Button x:Name="MoveLeftButton"
                     Grid.Row="2"
@@ -313,7 +444,7 @@
                     BorderBrush="{x:Null}"
                     Padding="0"
                     BorderThickness="0"
-                    Click="MoveLeft_Click">
+                    Command="{Binding MoveTargetToSourceCommand}">
                 <TextBlock x:Name="QueryRe2"
                            Text="No Data"
                            Padding="3"
@@ -330,31 +461,26 @@
                     BorderThickness="0"
                     Background="{x:Null}"
                     BorderBrush="{x:Null}"
-                    Foreground="{x:Null}"
-                    Click="showTableMenu"
-                    PreviewMouseUp="ignoreRClick">
+                    Foreground="{x:Null}">
                 <Path Fill="Black"
                       Data="{StaticResource invTriangle}" />
             </Button>
             <Button x:Name="BtnComp"
+                    Command="{Binding StartComparerCommand}"
                     Grid.Row="3"
                     Grid.ColumnSpan="2"
                     Grid.Column="0"
                     Content="↓ Compare ↓"
-                    Click="btnComp_Click"
-                    IsEnabled="False"
-                    Margin="0,0,90,0"
+                    IsEnabled="{Binding CanStartComparer}"
                     UseLayoutRounding="True" />
-            <ToggleButton x:Name="IsShowList"
+            <!--<ToggleButton x:Name="IsShowList"
                           Grid.Row="3"
                           Grid.Column="1"
                           HorizontalAlignment="Right"
                           Width="45"
                           Margin="0,0,45,0"
                           IsChecked="True"
-                          UseLayoutRounding="True"
-                          Unchecked="DisplayTypeUnchecked"
-                          Checked="DisplayTypeChecked">
+                          UseLayoutRounding="True">
                 <CheckBox IsChecked="{Binding IsChecked, ElementName=IsShowList, Mode=OneWay}"
                           IsHitTestVisible="False"
                           Padding="2,0,0,0"
@@ -367,15 +493,13 @@
                           HorizontalAlignment="Right"
                           Width="45"
                           UseLayoutRounding="True"
-                          Unchecked="DisplayTypeUnchecked"
-                          IsChecked="True"
-                          Checked="DisplayTypeChecked">
+                          IsChecked="True">
                 <CheckBox IsChecked="{Binding IsChecked, ElementName=IsShowText, Mode=OneWay}"
                           IsHitTestVisible="False"
                           Padding="0"
                           Content="Text"
                           UseLayoutRounding="True" />
-            </ToggleButton>
+            </ToggleButton>-->
             <Grid Grid.Row="4"
                   Grid.ColumnSpan="2"
                   Grid.Column="0"
@@ -385,11 +509,13 @@
                            VerticalAlignment="Top"
                            Fill="CornflowerBlue"
                            StrokeThickness="0"
-                           Width="{Binding ActualWidth, ElementName=compRe}"
-                           UseLayoutRounding="True">
+                           Width="{Binding ActualWidth, ElementName=CompReState}"
+                           UseLayoutRounding="True"
+                           RenderTransformOrigin="0,0.5"
+                           HorizontalAlignment="Left">
                     <Rectangle.LayoutTransform>
                         <TransformGroup>
-                            <ScaleTransform ScaleX="{Binding CompareProcess, ElementName=Window}" />
+                            <ScaleTransform ScaleX="{Binding ComparerProcess}" />
                         </TransformGroup>
                     </Rectangle.LayoutTransform>
                 </Rectangle>
@@ -404,25 +530,258 @@
                   Grid.Row="5"
                   Grid.ColumnSpan="2"
                   Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition x:Name="RowList" />
-                    <RowDefinition x:Name="RowResize"
-                                   Height="auto" />
-                    <RowDefinition x:Name="RowText" />
-                </Grid.RowDefinitions>
                 <Grid.Resources>
                     <BooleanToVisibilityConverter x:Key="BvConverter" />
                 </Grid.Resources>
-                <ListBox x:Name="CompReL"
-                         DockPanel.Dock="Top"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         Margin="0"
-                         ScrollViewer.CanContentScroll="False"
-                         UseLayoutRounding="True"
-                         Visibility="{Binding IsChecked, ElementName=IsShowList, Converter={StaticResource BvConverter}}"
-                         BorderThickness="0,1,0,0">
-                    <!--<local:DataTableListItem TableName="TableName"
-                                             TableNameClickEvent="CopyTableName" />-->
+                <Grid.RowDefinitions>
+                    <RowDefinition x:Name="RowOverviewFither"
+                                   Height="Auto" />
+                    <RowDefinition x:Name="RowOverview" />
+                    <RowDefinition x:Name="RowResize"
+                                   Height="Auto" />
+                    <RowDefinition x:Name="RowText" />
+                </Grid.RowDefinitions>
+                <Grid VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Hide:"
+                               Padding="3,0" />
+                    <WrapPanel Grid.Column="1">
+                        <CheckBox Content="Empty Table"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding HideEmptyTables}" />
+                        <CheckBox Content="Unchanged Table"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding HideUnchangedTables}" />
+                    </WrapPanel>
+                    <TextBlock Text="Show:"
+                               Grid.Row="1"
+                               Padding="3,0" />
+                    <WrapPanel Grid.Column="1"
+                               Grid.Row="1">
+                        <CheckBox x:Name="ShowSame"
+                                  Content="Same"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding ShowSameColumn}" />
+                        <CheckBox x:Name="ShowChanged"
+                                  Content="Changed"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding ShowChangedColumn}" />
+                        <CheckBox x:Name="ShowInsert"
+                                  Content="Inserted"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding ShowInsertColumn}" />
+                        <CheckBox x:Name="ShowDelete"
+                                  Content="Deleted"
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Top"
+                                  IsChecked="{Binding ShowDeleteColumn}" />
+                    </WrapPanel>
+                </Grid>
+                <FrameworkElement x:Name="DummyElement"
+                                  Grid.Row="1"
+                                  Visibility="Collapsed" />
+                <DataGrid x:Name="CompOverview"
+                          Grid.Row="1"
+                          DockPanel.Dock="Top"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.CanContentScroll="False"
+                          UseLayoutRounding="True"
+                          BorderThickness="0,1,0,0"
+                          AutoGenerateColumns="False"
+                          CanUserReorderColumns="False"
+                          CanUserSortColumns="False"
+                          CanUserResizeRows="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          HeadersVisibility="Column"
+                          ItemsSource="{Binding FilteredComparerResultOverview}"
+                          d:DataContext="{d:DesignData Source=SampleData/SampleDataSource/SampleDataSource.xaml}"
+                          CurrentCell="{Binding OverviewSelectedCellInfo, Converter={StaticResource SelectedCellToInfoConverter}, Mode=OneWayToSource}"
+                          IsReadOnly="True"
+                          SelectionUnit="Cell"
+                          SelectionMode="Single">
+                    <!--CurrentCell="{Binding OverviewSelectedCellInfo, Converter={StaticResource SelectedCellToInfoConverter}, Mode=OneWayToSource}"-->
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Table Name"
+                                            Binding="{Binding Table_Name}">
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"
+                                       TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="VerticalContentAlignment"
+                                            Value="Center" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                                                <Grid>
+                                                    <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}"
+                                                                                 BorderThickness="{TemplateBinding BorderThickness}"
+                                                                                 Background="{TemplateBinding Background}"
+                                                                                 IsClickable="{TemplateBinding CanUserSort}"
+                                                                                 IsPressed="{TemplateBinding IsPressed}"
+                                                                                 IsHovered="{TemplateBinding IsMouseOver}"
+                                                                                 Padding="{TemplateBinding Padding}"
+                                                                                 SortDirection="{TemplateBinding SortDirection}"
+                                                                                 SeparatorBrush="{TemplateBinding SeparatorBrush}"
+                                                                                 SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
+                                                        <Grid>
+                                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                              RecognizesAccessKey="True"
+                                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                            <TextBox Margin="74,0,0,0"
+                                                                     MinWidth="50"
+                                                                     Style="{StaticResource filterTBoxStyle}"
+                                                                     Text="{Binding FilterString, UpdateSourceTrigger=Explicit}"
+                                                                     DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
+                                                                     PreviewKeyDown="TableNameFilter_PreviewKeyDown">
+                                                                <TextBox.ToolTip>
+                                                                    <TextBlock>
+                                                                        Press <Bold>Enter</Bold> to apply<LineBreak />
+                                                                        Press <Bold>Esc</Bold> to clear
+                                                                    </TextBlock>
+                                                                </TextBox.ToolTip>
+                                                            </TextBox>
+                                                        </Grid>
+                                                    </Themes:DataGridHeaderBorder>
+                                                    <Thumb x:Name="PART_LeftHeaderGripper"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource ColumnHeaderGripperStyle}" />
+                                                    <Thumb x:Name="PART_RightHeaderGripper"
+                                                           HorizontalAlignment="Right"
+                                                           Style="{StaticResource ColumnHeaderGripperStyle}" />
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Same"
+                                            Visibility="{Binding DataContext.ShowSameColumn, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, Source={x:Reference DummyElement}}"
+                                            Binding="{Binding Same}" />
+                        <DataGridTextColumn Header="Changed"
+                                            Visibility="{Binding DataContext.ShowChangedColumn, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, Source={x:Reference DummyElement}}"
+                                            Binding="{Binding Changed}" />
+                        <DataGridTextColumn Header="Inserted"
+                                            Visibility="{Binding DataContext.ShowInsertColumn, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, Source={x:Reference DummyElement}}"
+                                            Binding="{Binding Inserted}" />
+                        <DataGridTextColumn Header="Deleted"
+                                            Visibility="{Binding DataContext.ShowDeleteColumn, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, Source={x:Reference DummyElement}}"
+                                            Binding="{Binding Deleted}" />
+                        <DataGridTextColumn Header="Data In Source"
+                                            Binding="{Binding Source={x:Null}, TargetNullValue=Click To View}" />
+                        <DataGridTextColumn Header="Data In Target"
+                                            Binding="{Binding Source={x:Null}, TargetNullValue=Click To View}" />
+                        <!--<DataGridTemplateColumn Header="Data In Source">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding TargetNullValue='Click To View'}"
+                                            Template="{StaticResource DataGridButtonCellTemplate}"
+                                            Command="{Binding DataContext.DisplayTargetDetailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}">
+                                        <Button.CommandParameter>
+                                            <MultiBinding Converter="{StaticResource CommandParameterConverter}">
+                                                <Binding Path="Column.Header"
+                                                         RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type DataGridCell}}" />
+                                                <Binding Path="Row.ItemArray[0]" />
+                                            </MultiBinding>
+                                        </Button.CommandParameter>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Data In Target">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Click To View"
+                                            Template="{StaticResource DataGridButtonCellTemplate}"
+                                            Command="{Binding DataContext.DisplayTargetDetailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
+                                            CommandParameter="{Binding}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>-->
+                    </DataGrid.Columns>
+                </DataGrid>
+                <GridSplitter Grid.Row="2"
+                              Height="5"
+                              ResizeBehavior="PreviousAndNext"
+                              ResizeDirection="Rows"
+                              ShowsPreview="True"
+                              Background="#FFABADB3"
+                              HorizontalAlignment="Stretch"
+                              DragIncrement="5"
+                              Foreground="{x:Null}" />
+                <Grid Margin="0"
+                      Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <TextBox x:Name="DetailTableFilter"
+                                 Style="{StaticResource filterTBoxStyle}"
+                                 PreviewKeyDown="DetailTableFilter_PreviewKeyDown"
+                                 Margin="0,0,85,0">
+                            <TextBox.ToolTip>
+                                <TextBlock>
+                                    Press <Bold>Enter</Bold> to apply<LineBreak />
+                                    Press <Bold>Esc</Bold> to clear
+                                </TextBlock>
+                            </TextBox.ToolTip>
+                        </TextBox>
+                        <ToggleButton x:Name="DetailFilterMode"
+                                      HorizontalAlignment="Right"
+                                      Width="85">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton">
+                                    <Setter Property="Content"
+                                            Value="Fuzzy Mode" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked"
+                                                 Value="True">
+                                            <Setter Property="Content"
+                                                    Value="Where Mode" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                    </Grid>
+                    <DataGrid x:Name="DetailDataOverview"
+                              ItemsSource="{Binding SelectedDetail}"
+                              CanUserReorderColumns="False"
+                              CanUserSortColumns="False"
+                              CanUserResizeRows="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              HeadersVisibility="Column"
+                              IsReadOnly="True"
+                              TargetUpdated="DataGrid_TargetUpdated"
+                              AlternationCount="2"
+                              AutoGeneratedColumns="DetailDataOverview_AutoGeneratedColumns"
+                              AutoGeneratingColumn="DetailDataOverview_AutoGeneratingColumn"
+                              ColumnHeaderStyle="{DynamicResource DetailDataOverviewColumnHeaderStyle}"
+                              Tag="{Binding DiffFields}"
+                              SelectionUnit="Cell"
+                              Margin="0"
+                              Grid.Row="1" />
+                    <!--CellStyle="{StaticResource DetailDataOverviewDiffCellStyle}"-->
+                </Grid>
+            </Grid>
+            <!--<local:DataTableListItem TableName="TableName"
+                                         TableNameClickEvent="CopyTableName" />-->
+            <!--
                 </ListBox>
                 <GridSplitter Grid.Row="1"
                               Height="5"
@@ -438,10 +797,10 @@
                          IsReadOnly="True"
                          TextWrapping="Wrap"
                          VerticalScrollBarVisibility="Auto"
-                         Visibility="{Binding IsChecked, ElementName=IsShowText, Converter={StaticResource BvConverter}}"
+                         Visibility="{Binding IsChecked, Converter={StaticResource BvConverter}, ElementName=IsShowText}"
                          BorderThickness="0,1,0,0" />
-            </Grid>
-            <Popup Grid.Row="5"
+            </Grid>-->
+            <!--<Popup Grid.Row="5"
                    Grid.Column="0"
                    x:Name="PopDataTable"
                    MaxWidth="800"
@@ -449,11 +808,8 @@
                    PopupAnimation="Slide"
                    StaysOpen="False"
                    IsOpen="{Binding StaysOpen, ElementName=popTableNames, Mode=OneWayToSource}"
-                   Placement="Left">
-                <Popup.HorizontalOffset>
-                    <Binding Path="-PlacementTarget.(Popup.ActualWidth)"
-                             RelativeSource="{RelativeSource Self}" />
-                </Popup.HorizontalOffset>
+                   Placement="Left"
+                   HorizontalOffset="{Binding -PlacementTarget.(FrameworkElement.ActualWidth), RelativeSource={RelativeSource Self}}">
                 <DataGrid x:Name="DataTableGrid"
                           CanUserReorderColumns="False"
                           CanUserResizeColumns="False"
@@ -461,7 +817,7 @@
                           HeadersVisibility="Column"
                           IsReadOnly="True"
                           ItemsSource="{Binding}" />
-            </Popup>
+            </Popup>-->
             <!--<Popup x:Name="popTableNames"
                    MaxWidth="300"
                    MaxHeight="600"
