@@ -27,6 +27,10 @@ How to use
 -----------------------
 ![](https://github.com/Flithor/EasyDatabaseCompare/blob/NewFramework/img.png)
 
+A new feature!
+
+![](https://github.com/Flithor/EasyDatabaseCompare/blob/NewFramework/rowcompare.png)
+
 Special Note
 ------------------------
 This project is my practice & learn various design patterns project
