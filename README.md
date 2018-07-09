@@ -1,4 +1,4 @@
-# EasyDatabaseCompare
+# EzDbDataComparer
 A simple database 2 time snapshot comparison tool
 
 Easy to find target database data changing!
