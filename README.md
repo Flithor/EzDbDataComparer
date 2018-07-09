@@ -29,7 +29,13 @@ How to use
 
 A new feature!
 
-![](https://github.com/Flithor/EasyDatabaseCompare/blob/NewFramework/rowcompare.png)
+Since a table without the primary key can't accurately match the difference between the data.
+
+So I added this feature.
+
+Allow users to pick 2 rows from table for comparison.
+
+![](https://github.com/Flithor/EasyDatabaseCompare/blob/NewFramework/rowcompare.gif)
 
 Special Note
 ------------------------
