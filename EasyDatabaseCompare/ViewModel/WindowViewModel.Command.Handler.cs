@@ -14,10 +14,14 @@ namespace EasyDatabaseCompare.ViewModel
         public void Reset()
         {
             SourceData?.Dispose();
+            TargetData?.Dispose();
             SourceData = null;
             TargetData = null;
             DataCompareResult = null;
             ConnectionChecked = false;
+            SelectedTables.Clear();
+            SelectedDetail = null;
+            FilteredComparerResultOverview = null;
         }
 
         public void CheckConnection()

@@ -63,7 +63,7 @@ namespace EasyDatabaseCompare.UserControls
         protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
         {
             var vm = ParentDataGrid.DataContext as ViewModel.IWindowViewModel;
-            if (vm.SelectedDetail.TableName == "Changed")
+            if (vm?.SelectedDetail.TableName == "Changed")
             {
                 var rowView = dataItem as DataRowView;
                 if (vm.DiffFields[rowView.Row].Contains(BindingField))
@@ -79,23 +79,27 @@ namespace EasyDatabaseCompare.UserControls
                         }
                     };
                     var orgEle = AutoFitGenerateElement(cell, dataItem, true);
+                    var orgBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5500FF00")) };
                     if (orgEle is TextBlock orgTb && !ReferenceEquals(orgEle.Tag, "Pic"))
                     {
                         BindingOperations.ClearBinding(orgTb, TextBlock.TextProperty);
                         orgTb.Text = org;
-                        orgTb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5500FF00"));
                     }
+                    orgBorder.Child = orgEle;
+
                     var newEle = AutoFitGenerateElement(cell, dataItem);
+                    var newBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#55FF0000")) };
                     if (newEle is TextBlock newTb && !ReferenceEquals(orgEle.Tag, "Pic"))
                     {
                         BindingOperations.ClearBinding(newTb, TextBlock.TextProperty);
                         newTb.Text = @new;
-                        newTb.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#55FF0000"));
                     }
-                    Grid.SetRow(orgEle, 0);
-                    Grid.SetRow(newEle, 1);
-                    grid.Children.Add(orgEle);
-                    grid.Children.Add(newEle);
+                    newBorder.Child = newEle;
+
+                    Grid.SetRow(orgBorder, 0);
+                    Grid.SetRow(newBorder, 1);
+                    grid.Children.Add(orgBorder);
+                    grid.Children.Add(newBorder);
                     return grid;
                 }
             }
@@ -137,20 +141,17 @@ namespace EasyDatabaseCompare.UserControls
             return re;
         }
 
-        private FrameworkElement GenerateCheckBox(DataGridCell cell, object dataItem)
+        private FrameworkElement GenerateCheckBox(DataGridCell cell, object dataItem, bool isGetOrg = false)
         {
             var row = (dataItem as DataRowView).Row;
-            var val = row[BindingField];
+            var val = row[BindingField, isGetOrg ? DataRowVersion.Original : DataRowVersion.Current];
             if (val == DBNull.Value)
-            {
-                var tb = new TextBlock();
-                tb.Inlines.Add(new Run("NULL") { Style = NullStyle });
-                return tb;
-            }
+                return GenerateTextBlock(cell, dataItem);
 
             CheckBox checkBox = new CheckBox { IsThreeState = false };
             ApplyStyle(false, true, checkBox);
-            ApplyBinding(checkBox, System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty);
+            //ApplyBinding(checkBox, System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty);
+            if (val is bool bVal) checkBox.IsChecked = bVal;
             return checkBox;
         }
 
@@ -187,7 +188,7 @@ namespace EasyDatabaseCompare.UserControls
             switch (Type.GetTypeCode(dType))
             {
                 case TypeCode.Boolean: //bool
-                    return GenerateCheckBox(cell, dataItem);
+                    return GenerateCheckBox(cell, dataItem, isGetOrg);
                 case TypeCode.SByte:
                 case TypeCode.Byte:
                 case TypeCode.Int16:

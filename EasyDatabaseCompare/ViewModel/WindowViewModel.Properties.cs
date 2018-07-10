@@ -1,6 +1,7 @@
 ﻿using ComparisonLib;
 using EasyDatabaseCompare.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,7 +20,7 @@ namespace EasyDatabaseCompare.ViewModel
         private bool _canStartComparer;
         private string _selecctedDbType;
         private bool _canCheckConnection;
-        private string[] _selectedTables;
+        private HashSet<string> _selectedTables;
         private bool _canSelectTable;
         private List<ConnectionFieldInfo> _fields;
         private bool _customConnectionStringMode;
@@ -158,7 +159,7 @@ namespace EasyDatabaseCompare.ViewModel
                 OnPropertyChanged(nameof(BlackListMode));
             }
         }
-        public string[] SelectedTables
+        public HashSet<string> SelectedTables
         {
             get => _selectedTables;
             set
@@ -318,7 +319,7 @@ namespace EasyDatabaseCompare.ViewModel
                 OnPropertyChanged(nameof(SelectedDetail));
             }
         }
-        public Dictionary<DataRow, string[]> DiffFields { get; private set; }
+        public Dictionary<DataRow, string[]> DiffFields { get; set; }
 
         public void OnPropertyChanged(string changedPropertyName)
         {

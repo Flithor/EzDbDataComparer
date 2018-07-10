@@ -281,25 +281,8 @@
                         Width="17"
                         Padding="0"
                         Margin="0"
-                        UseLayoutRounding="True">
-                    <Button.ContextMenu>
-                        <ContextMenu ItemsSource="{Binding}">
-                            <ContextMenu.ItemContainerStyle>
-                                <Style TargetType="{x:Type MenuItem}">
-                                    <Setter Property="StaysOpenOnClick"
-                                            Value="True" />
-                                    <Setter Property="IsSubmenuOpen"
-                                            Value="False" />
-                                </Style>
-                            </ContextMenu.ItemContainerStyle>
-                            <MenuItem>
-                                <MenuItem.Header>123455667</MenuItem.Header>
-                                <MenuItem>
-                                    <System:String>Sub12345</System:String>
-                                </MenuItem>
-                            </MenuItem>
-                        </ContextMenu>
-                    </Button.ContextMenu>
+                        UseLayoutRounding="True"
+                        Command="{Binding ResetCommand}">
                     <Image Source="ThirdPartyResources/Microsoft/Restart_16x.png"
                            Stretch="UniformToFill" />
                 </Button>
@@ -329,14 +312,23 @@
                                   Margin="0"
                                   VerticalContentAlignment="Stretch"
                                   Content="Black List Mode" />
-                        <!--<TextBox Grid.Row="1"
+                        <TextBox Grid.Row="1"
                                  x:Name="FilterStr"
                                  HorizontalAlignment="Right"
                                  Width="87.805"
-                                 Style="{StaticResource filterTBoxStyle}" />-->
+                                 TextChanged="filterStr_TextChanged"
+                                 Style="{StaticResource filterTBoxStyle}">
+                            <TextBox.ToolTip>
+                                <TextBlock>
+                                    Auto skip <Bold>Undersource</Bold>(<Bold>_</Bold>) in match<LineBreak/>
+                                    You also can use <Bold>Undersource</Bold> in filter string
+                                </TextBlock>
+                            </TextBox.ToolTip>
+                        </TextBox>
                         <ListBox Grid.Row="2"
+                                 Tag="{Binding TableNames}"
                                  ItemsSource="{Binding TableNames}"
-                                 SelectedItem="{Binding SelectedTables}"
+                                 SelectionChanged="filterTableList_SelectionChanged"
                                  x:Name="FilterTableList"
                                  SelectionMode="Multiple" />
                     </Grid>
@@ -775,7 +767,21 @@
                               Tag="{Binding DiffFields}"
                               SelectionUnit="Cell"
                               Margin="0"
-                              Grid.Row="1" />
+                              Grid.Row="1">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu x:Name="FastRowCompare">
+                                <MenuItem Header="Pick this row"
+                                          Click="PickFirst" />
+                                <MenuItem Header="Compare with previous pick"
+                                          Click="PickSecondAndCompare" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
                     <!--CellStyle="{StaticResource DetailDataOverviewDiffCellStyle}"-->
                 </Grid>
             </Grid>

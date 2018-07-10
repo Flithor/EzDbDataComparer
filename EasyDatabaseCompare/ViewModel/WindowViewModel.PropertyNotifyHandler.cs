@@ -43,9 +43,6 @@ namespace EasyDatabaseCompare.ViewModel
                     if (TableNames != null && TableNames.Length > 0)
                         ConnectionChecked = true;
                     break;
-                case "BlackListMode":
-                    if (SelectedTables == null) SelectedTables = new string[0];
-                    break;
                 case "HideEmptyTables":
                 case "HideUnchangedTables":
                     if (DataCache.DataCompareResult == null || DataCache.DataCompareResult.Count == 0) return;
@@ -81,6 +78,7 @@ namespace EasyDatabaseCompare.ViewModel
                     }
                     //GC.Collect();
                     break;
+                case "BlackListMode":
                 case "ShowSameColumn":
                 case "ShowInsertColumn":
                 case "ShowDeleteColumn":

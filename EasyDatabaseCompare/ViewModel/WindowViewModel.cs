@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Windows.Input;
 using System;
+using System.Collections;
 
 namespace EasyDatabaseCompare.ViewModel
 {
@@ -21,7 +22,7 @@ namespace EasyDatabaseCompare.ViewModel
         string[] TableNames { get; set; }
         bool CanSelectTable { get; }
         bool BlackListMode { get; set; }
-        string[] SelectedTables { get; set; }
+        HashSet<string> SelectedTables { get; set; }
         string[] TargetTables { get; }
         bool CanQuerySource { get; }
         double QuerySourceProcess { get; set; }
@@ -40,7 +41,7 @@ namespace EasyDatabaseCompare.ViewModel
         string[] DbConnectionFields { get; }
         string OverviewSelectedCellInfo { get; set; }
         DataTable SelectedDetail { get; set; }
-        Dictionary<DataRow, string[]> DiffFields { get; }
+        Dictionary<DataRow, string[]> DiffFields { get; set; }
 
         ICommand ResetCommand { get; }
         ICommand CheckConnectionCommand { get; }
@@ -77,6 +78,8 @@ namespace EasyDatabaseCompare.ViewModel
             SelectedDbTypeChanged();
 
             PropertyChanged += PropertyChangedHandler;
+
+            SelectedTables = new HashSet<string>();
         }
 
         internal IDataQuery Querier { get; }

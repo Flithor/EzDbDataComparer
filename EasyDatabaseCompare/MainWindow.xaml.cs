@@ -19,6 +19,7 @@ using EasyDatabaseCompare.ViewModel;
 using EasyDatabaseCompare.Model;
 using EasyDatabaseCompare.UserControls;
 using System.Windows.Data;
+using ComparisonLib;
 
 namespace EasyDatabaseCompare
 {
@@ -55,6 +56,11 @@ namespace EasyDatabaseCompare
             {
                 case "ConnectionChecked":
                     if (ViewModel.ConnectionChecked) TopMsg.ShowMessage("Connection Test Success!");
+                    SelectedRow1 = null;
+                    SelectedRow2 = null;
+                    ViewModel.SelectedTables.Clear();
+                    FilterStr.Text = "";
+                    filterStr_TextChanged(null, null);
                     break;
                 case "CustomConnectionStringMode":
                     TopMsg.ShowMessage(
@@ -241,6 +247,89 @@ namespace EasyDatabaseCompare
             foreach (DataGridColumn item in e.OldItems)
                 BindingOperations.ClearAllBindings(item);
         }
+
+
+        private void DetailOverviewHeaderClickEventHandle(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton != MouseButton.Left) return;
+            var colHeader = sender as DataGridColumnHeader;
+            var colName = colHeader.Column.Header.ToString();
+            try
+            {
+                Clipboard.SetText(colName);
+                TopMsg.ShowMessage($"Column name \"{colName}\" copied!");
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                TopMsg.ShowMessage("Column name copy failed! ");
+            }
+        }
+
+
+        #region Fast compare 2 row
+        DataRow SelectedRow1 { get; set; }
+        DataRow SelectedRow2 { get; set; }
+
+        private void PickFirst(object sender, RoutedEventArgs e)
+        {
+            if (DetailDataOverview.Items.Count == 0)
+            {
+                TopMsg.ShowMessage("Table is empty!");
+                return;
+            }
+            if (DetailDataOverview.CurrentItem == null)
+            {
+                TopMsg.ShowMessage("Please select a row!");
+                return;
+            }
+            SelectedRow1 = (DetailDataOverview.CurrentItem as DataRowView).Row;
+        }
+        private void PickSecondAndCompare(object sender, RoutedEventArgs e)
+        {
+            if (DetailDataOverview.Items.Count == 0)
+            {
+                TopMsg.ShowMessage("Table is empty!");
+                return;
+            }
+            if (SelectedRow1 == null)
+            {
+                TopMsg.ShowMessage("Please pick a row at first!");
+                return;
+            }
+            if (DetailDataOverview.CurrentItem == null)
+            {
+                TopMsg.ShowMessage("Please select a row!");
+                return;
+            }
+            SelectedRow2 = (DetailDataOverview.CurrentItem as DataRowView).Row;
+
+            var col1 = SelectedRow1.Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+            var col2 = SelectedRow2.Table.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+            if (!col1.SequenceEqual(col2))
+            {
+                TopMsg.ShowMessage("These two rows are not from the same table!");
+                SelectedRow1 = null;
+                SelectedRow2 = null;
+                return;
+            }
+            var diffs = DataRowCellComparer.GetDiffFields(SelectedRow1, SelectedRow2).ToArray();
+            var fastCompareTable = SelectedRow1.Table.Clone();
+            fastCompareTable.TableName = "Changed";
+            fastCompareTable.PrimaryKey = new DataColumn[0];
+            foreach (var dataColumn in fastCompareTable.Columns.Cast<DataColumn>())
+                dataColumn.ReadOnly = false;
+            var newRow = fastCompareTable.NewRow();
+            newRow.ItemArray = SelectedRow1.ItemArray;
+            fastCompareTable.Rows.Add(newRow);
+            newRow.AcceptChanges();
+            foreach (var diff in diffs)
+                newRow[diff] = SelectedRow2[diff];
+            ViewModel.DiffFields = new Dictionary<DataRow, string[]> { { newRow, diffs } };
+            ViewModel.SelectedDetail = fastCompareTable;
+        }
+
+        #endregion
         //public IEnumerable<string> SupportedDbList
         //{
         //    get => (IEnumerable<string>)GetValue(SupportedDbListProperty);
@@ -735,23 +824,27 @@ namespace EasyDatabaseCompare
 
         //private HashSet<string> SelectedTableName { get; } = new HashSet<string>();
 
-        //bool _onFilter;
-        //private void filterStr_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    _onFilter = true;
-        //    var filterList = FilterStr.Text.Contains('_') ?
-        //        TableNames.Where(str => str.ToLower().Contains(FilterStr.Text.ToLower())) :
-        //        TableNames.Where(str => str.Replace("_", "").ToLower().Contains(FilterStr.Text.ToLower()));
-        //    FilterTableList.ItemsSource = filterList;
-        //    var intersectList = SelectedTableName.Intersect(filterList).ToList();
-        //    intersectList.ForEach(str => FilterTableList.SelectedItems.Add(str));
-        //    _onFilter = false;
-        //}
-        //private void filterTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    e.AddedItems.Cast<string>().ToList().ForEach(str => SelectedTableName.Add(str));
-        //    if (!_onFilter) e.RemovedItems.Cast<string>().ToList().ForEach(str => SelectedTableName.Remove(str));
-        //}
+        bool _onFilter;
+        private void filterStr_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _onFilter = true;
+            if (FilterTableList.Tag is IList<string> TableNames)
+            {
+                var filterList = FilterStr.Text.Contains('_') ?
+                    TableNames.Where(str => str.ToLower().Contains(FilterStr.Text.ToLower())) :
+                    TableNames.Where(str => str.Replace("_", "").ToLower().Contains(FilterStr.Text.ToLower()));
+                FilterTableList.ItemsSource = filterList;
+                var intersectList = ViewModel.SelectedTables.Intersect(filterList).ToList();
+                intersectList.ForEach(str => FilterTableList.SelectedItems.Add(str));
+            };
+            _onFilter = false;
+        }
+        private void filterTableList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            e.AddedItems.Cast<string>().ToList().ForEach(str => ViewModel.SelectedTables.Add(str));
+            if (!_onFilter) e.RemovedItems.Cast<string>().ToList().ForEach(str => ViewModel.SelectedTables.Remove(str));
+        }
+
 
         //private void changeMode_Checked(object sender, RoutedEventArgs e)
         //{
@@ -809,21 +902,5 @@ namespace EasyDatabaseCompare
         //    if (e.ChangedButton != MouseButton.Left)
         //        e.Handled = true;
         //}
-        private void DetailOverviewHeaderClickEventHandle(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton != MouseButton.Left) return;
-            var colHeader = sender as DataGridColumnHeader;
-            var colName = colHeader.Column.Header.ToString();
-            try
-            {
-                Clipboard.SetText(colName);
-                TopMsg.ShowMessage($"Column name \"{colName}\" copied!");
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                TopMsg.ShowMessage("Column name copy failed! ");
-            }
-        }
     }
 }

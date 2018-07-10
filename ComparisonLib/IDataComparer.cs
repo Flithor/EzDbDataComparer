@@ -59,13 +59,46 @@ namespace ComparisonLib
             //    }
             //    return true;
             //}
-
             if (primaryKeys.Length == 0)
             {
-                diff.DeletedDatas = sourceRows.Except(targetRows, DataRowCellComparer.Default).ToList();
-                var InsertNChangedRows = targetRows.Except(sourceRows, DataRowCellComparer.Default);
-                diff.InsertedDatas = InsertNChangedRows.ToList();
-                diff.SameData = sourceRows.Intersect(targetRows, DataRowCellComparer.Default).ToList();
+                diff.SameData = new List<DataRow>();
+
+                var dynSourceRow = sourceRows.ToList();
+                var dynTargetRow = targetRows.ToList();
+
+                for (var i = 0; i < dynSourceRow.Count;)
+                {
+                    var getDiff = true;
+                    for (var j = 0; j < dynTargetRow.Count;)
+                    {
+                        var isEquals =
+                            DataRowCellComparer.Default.Equals(dynSourceRow[i],
+                                dynTargetRow[j]); //compare two row is same or not
+                        if (isEquals)
+                        {
+                            diff.SameData.Add(dynSourceRow[i]); //save same row
+                            dynSourceRow.RemoveAt(i); //remove same row
+                            dynTargetRow.RemoveAt(j); //remove same row
+                            getDiff = false; //notice not move next
+                            break;
+                        }
+
+                        j++; //this row not same to source, move next
+                    }
+
+                    if (getDiff) //if not found same row, move next
+                        i++;
+                }
+
+                diff.InsertedDatas = dynTargetRow;
+                diff.DeletedDatas = dynSourceRow;
+
+                //diff.DeletedDatas = sourceRows.Except(targetRows, DataRowCellComparer.Default).ToList();
+                //var InsertNChangedRows = targetRows.Except(sourceRows, DataRowCellComparer.Default);
+                //diff.InsertedDatas = InsertNChangedRows.ToList();
+                //diff.SameData = sourceRows.Intersect(targetRows, DataRowCellComparer.Default).ToList();
+
+
                 //var sourceRowsList = sourceRows.ToList();
                 //var targetRowsList = targetRows.ToList();
                 //for (var i = 0; i < sourceRowsList.Count;)
