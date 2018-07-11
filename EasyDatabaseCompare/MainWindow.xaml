@@ -76,7 +76,7 @@
                                 <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}"
                                                              BorderThickness="{TemplateBinding BorderThickness}"
                                                              Background="{TemplateBinding Background}"
-                                                             IsClickable="{TemplateBinding CanUserSort}"
+                                                             IsClickable="True"
                                                              IsPressed="{TemplateBinding IsPressed}"
                                                              IsHovered="{TemplateBinding IsMouseOver}"
                                                              Padding="{TemplateBinding Padding}"

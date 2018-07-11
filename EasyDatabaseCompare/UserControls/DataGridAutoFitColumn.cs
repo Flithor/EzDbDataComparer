@@ -68,8 +68,8 @@ namespace EasyDatabaseCompare.UserControls
                 var rowView = dataItem as DataRowView;
                 if (vm.DiffFields[rowView.Row].Contains(BindingField))
                 {
-                    var org = rowView.Row[BindingField, DataRowVersion.Original].ToString();
-                    var @new = rowView.Row[BindingField, DataRowVersion.Current].ToString();
+                    //var org = rowView.Row[BindingField, DataRowVersion.Original].ToString();
+                    //var @new = rowView.Row[BindingField, DataRowVersion.Current].ToString();
                     var grid = new Grid
                     {
                         RowDefinitions =
@@ -80,20 +80,20 @@ namespace EasyDatabaseCompare.UserControls
                     };
                     var orgEle = AutoFitGenerateElement(cell, dataItem, true);
                     var orgBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5500FF00")) };
-                    if (orgEle is TextBlock orgTb && !ReferenceEquals(orgEle.Tag, "Pic"))
-                    {
-                        BindingOperations.ClearBinding(orgTb, TextBlock.TextProperty);
-                        orgTb.Text = org;
-                    }
+                    //if (orgEle is TextBlock orgTb)
+                    //{
+                    //    //BindingOperations.ClearBinding(orgTb, TextBlock.TextProperty);
+                    //    //orgTb.Text = org;
+                    //}
                     orgBorder.Child = orgEle;
 
                     var newEle = AutoFitGenerateElement(cell, dataItem);
                     var newBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#55FF0000")) };
-                    if (newEle is TextBlock newTb && !ReferenceEquals(orgEle.Tag, "Pic"))
-                    {
-                        BindingOperations.ClearBinding(newTb, TextBlock.TextProperty);
-                        newTb.Text = @new;
-                    }
+                    //if (newEle is TextBlock newTb)
+                    //{
+                    //    //BindingOperations.ClearBinding(newTb, TextBlock.TextProperty);
+                    //    //newTb.Text = @new;
+                    //}
                     newBorder.Child = newEle;
 
                     Grid.SetRow(orgBorder, 0);
@@ -108,7 +108,7 @@ namespace EasyDatabaseCompare.UserControls
             return AutoFitGenerateElement(cell, dataItem);
         }
 
-        private TextBlock GenerateTextBlock(DataGridCell cell, object dataItem)
+        private TextBlock GenerateTextBlock(DataGridCell cell, object dataItem, bool isGetOrg = false)
         {
             var re = base.GenerateElement(cell, dataItem) as TextBlock;
             re.TextWrapping = TextWrapping.NoWrap;
@@ -130,7 +130,12 @@ namespace EasyDatabaseCompare.UserControls
             //BindingOperations.SetBinding(re, TextBlockExtensions.BindableInlinesProperty, inlineBinding);
 
             if (string.IsNullOrEmpty(HighlightString)) return re;
-            BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+            if (isGetOrg)
+            {
+                BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+                BindingOperations.SetBinding(re, TextBlock.TextProperty,
+                    new Binding($"Row[{BindingField}\\,256]") { Mode = BindingMode.OneWay });
+            }
             var row = (dataItem as DataRowView).Row;
             var val = row[BindingField];
             if (val == DBNull.Value)
@@ -150,7 +155,14 @@ namespace EasyDatabaseCompare.UserControls
 
             CheckBox checkBox = new CheckBox { IsThreeState = false };
             ApplyStyle(false, true, checkBox);
-            //ApplyBinding(checkBox, System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty);
+
+            if (isGetOrg)
+                BindingOperations.SetBinding(checkBox,
+                    System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty,
+                    new Binding($"Row[{BindingField}\\,256]") { Mode = BindingMode.OneWay });
+            else
+                ApplyBinding(checkBox, System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty);
+
             if (val is bool bVal) checkBox.IsChecked = bVal;
             return checkBox;
         }
@@ -200,23 +212,24 @@ namespace EasyDatabaseCompare.UserControls
                 case TypeCode.Single:
                 case TypeCode.Double:
                 case TypeCode.Decimal: //numric
-                    return GenerateTextBlock(cell, dataItem);
+                    return GenerateTextBlock(cell, dataItem, isGetOrg);
                 case TypeCode.DateTime: //datetime
-                    return GenerateTextBlock(cell, dataItem);
+                    return GenerateTextBlock(cell, dataItem, isGetOrg);
                 case TypeCode.Char:
                 case TypeCode.String: //string
-                    return GenerateTextBlock(cell, dataItem);
+                    return GenerateTextBlock(cell, dataItem, isGetOrg);
                 case TypeCode.DBNull:
                 case TypeCode.Empty: //null value
-                    return GenerateTextBlock(cell, dataItem);
+                    return GenerateTextBlock(cell, dataItem, isGetOrg);
                 case TypeCode.Object: //others
                     if (dType.IsArray && rowView.Row[BindingField, isGetOrg ? DataRowVersion.Original : DataRowVersion.Current] is byte[] dataBytes) //if Array
                     {
                         var tryImg = TryLoadImage(dataBytes);
                         if (tryImg != null)
                         {
-                            var re = GenerateTextBlock(cell, dataItem);
-                            BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+                            var re = GenerateTextBlock(cell, dataItem, isGetOrg);
+                            //BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+
                             re.Text = string.Empty;
                             re.Background = new ImageBrush { ImageSource = tryImg, Stretch = Stretch.UniformToFill };
                             re.ToolTip = new Image { Source = tryImg };
