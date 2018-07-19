@@ -222,7 +222,7 @@ namespace EasyDatabaseCompare
                     //    .Select(col => col.ColumnName);
                     var dv = DetailDataOverview.ItemsSource as DataView;
                     if (e.Key == Key.Escape) tb.Text = string.Empty;
-                    if (string.IsNullOrWhiteSpace(tb.Text))
+                    if (string.IsNullOrEmpty(tb.Text))
                     {
                         dv.RowFilter = string.Empty;
                     }
@@ -235,6 +235,10 @@ namespace EasyDatabaseCompare
                         {
                             TopMsg.ShowMessage("Non-compliant \"where\" clause");
                         }
+                    else if (tb.Text.ToLower() == "`null")
+                        dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR {col} is null"));
+                    else if (tb.Text== "` ")
+                        dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR CONVERT({col}, System.String) = ''"));
                     else
                         dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%'"));
                     break;
@@ -844,7 +848,6 @@ namespace EasyDatabaseCompare
             e.AddedItems.Cast<string>().ToList().ForEach(str => ViewModel.SelectedTables.Add(str));
             if (!_onFilter) e.RemovedItems.Cast<string>().ToList().ForEach(str => ViewModel.SelectedTables.Remove(str));
         }
-
 
         //private void changeMode_Checked(object sender, RoutedEventArgs e)
         //{

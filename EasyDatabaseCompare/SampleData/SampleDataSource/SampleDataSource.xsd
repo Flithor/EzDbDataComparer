@@ -9,7 +9,12 @@
   <xs:complexType name="SampleDataSource">
     <xs:sequence>
       <xs:element name="FilteredComparerResultOverview" type="tns:FilteredComparerResultOverview" />
+      <xs:element name="SelectedDetail" type="tns:SelectedDetail" />
     </xs:sequence>
+    <xs:attribute name="HideUnchangedTables" type="xs:boolean" />
+    <xs:attribute name="HideEmptyTables" type="xs:boolean" />
+    <xs:attribute name="ShowSameColumn" type="xs:boolean" />
+    <xs:attribute name="ShowChangedColumn" type="xs:boolean" />
   </xs:complexType>
   <xs:complexType name="FilteredComparerResultOverview">
     <xs:sequence>
@@ -23,4 +28,21 @@
     <xs:attribute name="Inserted" type="xs:double" />
     <xs:attribute name="Deleted" type="xs:double" />
   </xs:complexType>
+  <xs:complexType name="SelectedDetail">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" name="SelectedDetailItem" type="tns:SelectedDetailItem" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="SelectedDetailItem">
+    <xs:attribute name="ColumnA" type="xs:string" />
+    <xs:attribute blend:Format="地址" name="ColumnB" type="xs:string" />
+    <xs:attribute blend:Format="价格" name="ColumnC" type="xs:string" />
+    <xs:attribute name="ColumnD" type="xs:double" />
+    <xs:attribute blend:Format="网址" name="ColumnE" type="xs:string" />
+    <xs:attribute blend:Format="公司名称" name="ColumnF" type="xs:string" />
+    <xs:attribute name="ColumnG" type="tns:Basic-Image" />
+  </xs:complexType>
+  <xs:simpleType name="Basic-Image">
+    <xs:restriction base="xs:anyURI" />
+  </xs:simpleType>
 </xs:schema>

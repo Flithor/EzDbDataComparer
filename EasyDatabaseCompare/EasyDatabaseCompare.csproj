@@ -94,7 +94,8 @@
     <Reference Include="Ninject, Version=3.3.4.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
       <HintPath>..\packages\Ninject.3.3.4\lib\net45\Ninject.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationFramework.Aero2" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -127,8 +128,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -151,6 +150,7 @@
     <Compile Include="Service\DataService.cs" />
     <Compile Include="StyleSelectors\ShowDiffSelector.cs" />
     <Compile Include="TopMsg.cs" />
+    <Compile Include="UserControls\AutoFreshElement.cs" />
     <Compile Include="UserControls\ListBoxExtensions.cs" />
     <Compile Include="UserControls\DataGridAutoFitColumn.cs" />
     <Compile Include="ViewModel\WindowViewModel.CodeForDesign.cs">
@@ -170,6 +170,10 @@
       <DependentUpon>WindowViewModel.cs</DependentUpon>
     </Compile>
     <Page Include="ControlResources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ThirdPartyResources\Microsoft\Microsoft Icon Library.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -248,17 +252,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ThirdPartyResources\Microsoft\SwitchSourceOrTarget_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="ThirdPartyResources\Microsoft\Restart_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="ThirdPartyResources\Microsoft\DatabaseAuditSpecification_16x.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="AccessLayer\" />
     <Folder Include="DataStore\DataStore\" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource_Files\image01.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource_Files\image02.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource_Files\image03.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource_Files\image04.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <DesignTimeOnly Include="SampleData\SampleDataSource\SampleDataSource_Files\image05.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -79,7 +79,7 @@ namespace EasyDatabaseCompare.UserControls
                         }
                     };
                     var orgEle = AutoFitGenerateElement(cell, dataItem, true);
-                    var orgBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5500FF00")) };
+                    var orgBorder = new Border { Background = OriginalValueBorderBackgroundBrush };
                     //if (orgEle is TextBlock orgTb)
                     //{
                     //    //BindingOperations.ClearBinding(orgTb, TextBlock.TextProperty);
@@ -88,7 +88,7 @@ namespace EasyDatabaseCompare.UserControls
                     orgBorder.Child = orgEle;
 
                     var newEle = AutoFitGenerateElement(cell, dataItem);
-                    var newBorder = new Border { Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#55FF0000")) };
+                    var newBorder = new Border { Background = NewValueBorderBackgroundBrush };
                     //if (newEle is TextBlock newTb)
                     //{
                     //    //BindingOperations.ClearBinding(newTb, TextBlock.TextProperty);
@@ -106,15 +106,70 @@ namespace EasyDatabaseCompare.UserControls
 
             //default
             return AutoFitGenerateElement(cell, dataItem);
+
+            //var result = new AutoFreshElement(cell, RecreateElement);
+            //result.GenerateCheckBox += GenerateCheckBox;
+            //result.GenerateTextBlock += GenerateTextBlock;
+
+            //cell.DataContextChanged += Cell_DataContextChanged;
+            //return RecreateElement(cell, dataItem);
         }
+
+        //private void Cell_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        //{
+        //    var cell = sender as DataGridCell;
+        //    cell.Content = RecreateElement(cell, cell.DataContext);
+
+        //}
+
+        private static readonly SolidColorBrush OriginalValueBorderBackgroundBrush =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5500FF00"));
+
+        private static readonly SolidColorBrush NewValueBorderBackgroundBrush =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#55FF0000"));
+        //private FrameworkElement RecreateElement(DataGridCell cell, object dataItem)
+        //{
+        //    var vm = ParentDataGrid.DataContext as ViewModel.IWindowViewModel;
+        //    if (vm?.SelectedDetail.TableName == "Changed")
+        //    {
+        //        var rowView = dataItem as DataRowView;
+        //        if (vm.DiffFields[rowView.Row].Contains(BindingField))
+        //        {
+        //            //var org = rowView.Row[BindingField, DataRowVersion.Original].ToString();
+        //            //var @new = rowView.Row[BindingField, DataRowVersion.Current].ToString();
+        //            var grid = new Grid
+        //            {
+        //                RowDefinitions =
+        //                {
+        //                    new RowDefinition {Height = GridLength.Auto},
+        //                    new RowDefinition {Height = GridLength.Auto}
+        //                }
+        //            };
+        //            var orgEle = AutoFitGenerateElement(cell, dataItem, true);
+        //            var orgBorder = new Border { Background = OriginalValueBorderBackgroundBrush };
+        //            orgBorder.Child = orgEle;
+
+        //            var newEle = AutoFitGenerateElement(cell, dataItem);
+        //            var newBorder = new Border { Background = NewValueBorderBackgroundBrush };
+        //            newBorder.Child = newEle;
+
+        //            Grid.SetRow(orgBorder, 0);
+        //            Grid.SetRow(newBorder, 1);
+        //            grid.Children.Add(orgBorder);
+        //            grid.Children.Add(newBorder);
+        //            return grid;
+        //        }
+        //    }
+
+        //    //default
+        //    return AutoFitGenerateElement(cell, dataItem);
+        //}
 
         private TextBlock GenerateTextBlock(DataGridCell cell, object dataItem, bool isGetOrg = false)
         {
             var re = base.GenerateElement(cell, dataItem) as TextBlock;
             re.TextWrapping = TextWrapping.NoWrap;
             re.TextTrimming = TextTrimming.CharacterEllipsis;
-            BindingOperations.SetBinding(re, FrameworkElement.ToolTipProperty,
-                new Binding("Text") { Source = re });
 
             //var oldBinding = BindingOperations.GetBinding(re, TextBlock.TextProperty);
             //var inlineBinding = new MultiBinding
@@ -129,18 +184,57 @@ namespace EasyDatabaseCompare.UserControls
 
             //BindingOperations.SetBinding(re, TextBlockExtensions.BindableInlinesProperty, inlineBinding);
 
-            if (string.IsNullOrEmpty(HighlightString)) return re;
             if (isGetOrg)
             {
-                BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+                //BindingOperations.ClearBinding(re, TextBlock.TextProperty);
                 BindingOperations.SetBinding(re, TextBlock.TextProperty,
-                    new Binding($"Row[{BindingField}\\,256]") { Mode = BindingMode.OneWay });
+                    new Binding($"Row[{BindingField},256]") { Mode = BindingMode.OneWay });
             }
             var row = (dataItem as DataRowView).Row;
-            var val = row[BindingField];
+            var val = row[BindingField, isGetOrg ? DataRowVersion.Original : DataRowVersion.Current];
             if (val == DBNull.Value)
+            {
+                BindingOperations.ClearBinding(re, TextBlock.TextProperty);
                 re.Inlines.Add(new Run("NULL") { Style = NullStyle });
-            else if (val.GetType().IsArray) return re;
+                re.ToolTip = "This cell is null";
+                if (HighlightString.ToLower() == "`null") re.Background = HighlightColor;
+            }
+            else if (string.IsNullOrEmpty(val.ToString()))
+            {
+                BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+                re.Inlines.Add(new Run("Empty String") { Style = NullStyle });
+                re.ToolTip = "This cell is an empty string";
+                if (HighlightString == "` ") re.Background = HighlightColor;
+            }
+            else if (val.GetType().IsArray && val is byte[] dataBytes)
+            {
+                var tryImg = TryLoadImage(dataBytes);
+                if (tryImg == null)
+                {
+                    re.ToolTip = new TextBlock
+                    {
+                        Text = $"byte[] {{{string.Join(", ", dataBytes)}}}",
+                        TextTrimming = TextTrimming.CharacterEllipsis,
+                        TextWrapping = TextWrapping.Wrap,
+                        MaxWidth = 500,
+                        MaxHeight = 500
+                    };
+                    return re;
+                }
+                //BindingOperations.ClearBinding(re, TextBlock.TextProperty);
+                re.Text = string.Empty;
+                re.Background = new ImageBrush { ImageSource = tryImg, Stretch = Stretch.UniformToFill };
+                re.ToolTip = new Image { Source = tryImg };
+                return re;
+            }
+            if (string.IsNullOrEmpty(HighlightString))
+            {
+                if (re.ToolTip is null)
+                    BindingOperations.SetBinding(re, FrameworkElement.ToolTipProperty,
+                        new Binding("Text") { Source = re });
+                return re;
+            }
+            BindingOperations.ClearBinding(re, TextBlock.TextProperty);
             var splitAll = SplitAll(val.ToString(), HighlightString, true);
             re.Inlines.AddRange(splitAll.Select(m => m.isMatch ? new Run(m.subString) { Background = HighlightColor } : new Run(m.subString)));
             return re;
@@ -151,7 +245,7 @@ namespace EasyDatabaseCompare.UserControls
             var row = (dataItem as DataRowView).Row;
             var val = row[BindingField, isGetOrg ? DataRowVersion.Original : DataRowVersion.Current];
             if (val == DBNull.Value)
-                return GenerateTextBlock(cell, dataItem);
+                return GenerateTextBlock(cell, dataItem, isGetOrg);
 
             CheckBox checkBox = new CheckBox { IsThreeState = false };
             ApplyStyle(false, true, checkBox);
@@ -159,7 +253,7 @@ namespace EasyDatabaseCompare.UserControls
             if (isGetOrg)
                 BindingOperations.SetBinding(checkBox,
                     System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty,
-                    new Binding($"Row[{BindingField}\\,256]") { Mode = BindingMode.OneWay });
+                    new Binding($"Row[{BindingField},256]") { Mode = BindingMode.OneWay });
             else
                 ApplyBinding(checkBox, System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty);
 
@@ -167,8 +261,8 @@ namespace EasyDatabaseCompare.UserControls
             return checkBox;
         }
 
-        private static DataGridCheckBoxColumn _defaultCheckBoxColumn = new DataGridCheckBoxColumn();
-        private Style DefaultCheckBoxStyle => _defaultCheckBoxColumn.ElementStyle;
+        private static readonly DataGridCheckBoxColumn DefaultCheckBoxColumn = new DataGridCheckBoxColumn();
+        private static Style DefaultCheckBoxStyle => DefaultCheckBoxColumn.ElementStyle;
         internal void ApplyStyle(bool isEditing, bool defaultToElementStyle, FrameworkElement element)
         {
             Style style = PickStyle(isEditing, defaultToElementStyle);
@@ -194,7 +288,6 @@ namespace EasyDatabaseCompare.UserControls
 
         private FrameworkElement AutoFitGenerateElement(DataGridCell cell, object dataItem, bool isGetOrg = false)
         {
-            var vm = ParentDataGrid.DataContext as ViewModel.IWindowViewModel;
             var rowView = dataItem as DataRowView;
             var dType = rowView.Row.Table.Columns[BindingField].DataType;
             switch (Type.GetTypeCode(dType))
@@ -222,22 +315,7 @@ namespace EasyDatabaseCompare.UserControls
                 case TypeCode.Empty: //null value
                     return GenerateTextBlock(cell, dataItem, isGetOrg);
                 case TypeCode.Object: //others
-                    if (dType.IsArray && rowView.Row[BindingField, isGetOrg ? DataRowVersion.Original : DataRowVersion.Current] is byte[] dataBytes) //if Array
-                    {
-                        var tryImg = TryLoadImage(dataBytes);
-                        if (tryImg != null)
-                        {
-                            var re = GenerateTextBlock(cell, dataItem, isGetOrg);
-                            //BindingOperations.ClearBinding(re, TextBlock.TextProperty);
-
-                            re.Text = string.Empty;
-                            re.Background = new ImageBrush { ImageSource = tryImg, Stretch = Stretch.UniformToFill };
-                            re.ToolTip = new Image { Source = tryImg };
-                            re.Tag = "Pic";
-                            return re;
-                        }
-                    }
-                    break;
+                    return GenerateTextBlock(cell, dataItem, isGetOrg);
                 default:
                     break;
             }
@@ -265,8 +343,8 @@ namespace EasyDatabaseCompare.UserControls
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                Console.WriteLine("this not a image stream");
+                //Console.WriteLine(e);
+                //Console.WriteLine("this not a image stream");
             }
 
             return null;

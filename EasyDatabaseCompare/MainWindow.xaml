@@ -7,44 +7,22 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:conv="clr-namespace:EasyDatabaseCompare.Converter"
         xmlns:data="clr-namespace:System.Data;assembly=System.Data"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
         xmlns:uc="clr-namespace:EasyDatabaseCompare.UserControls"
         x:Name="Window"
         x:Class="EasyDatabaseCompare.MainWindow"
         mc:Ignorable="d"
         Title="EasyDatabaseComparer"
-        d:DataContext="{d:DesignInstance {x:Type VM:WindowViewModel}, IsDesignTimeCreatable=True}">
+        d:DataContext="{d:DesignData Source=SampleData/SampleDataSource/SampleDataSource.xaml}"
+        d:DesignWidth="748">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ControlResources.xaml" />
+                <ResourceDictionary Source="ThirdPartyResources/Microsoft/Microsoft Icon Library.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <conv:CommandParameterConverter x:Key="CommandParameterConverter" />
             <!--<cov:FieldsToTextBox x:Key="fieldsToTextBox" />-->
             <conv:SelectedCellToInfoConverter x:Key="SelectedCellToInfoConverter" />
-            <Style x:Key="DisplayNullDataGridTextColumnStyle"
-                   TargetType="{x:Type TextBlock}">
-                <Style.Resources>
-                    <conv:CheckCellNullConverter x:Key="CheckCellNullConverter" />
-                </Style.Resources>
-                <Setter Property="Margin"
-                        Value="2,0" />
-                <Style.BasedOn>
-                    <StaticResource ResourceKey="{x:Type TextBlock}" />
-                </Style.BasedOn>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding Converter={StaticResource CheckCellNullConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridCell}}}"
-                                 Value="True">
-                        <Setter Property="Foreground"
-                                Value="#FF555555" />
-                        <Setter Property="FontStyle"
-                                Value="Italic" />
-                        <Setter Property="Padding"
-                                Value="4,0,0,0" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
             <Style x:Key="ColumnHeaderGripperStyle"
                    TargetType="{x:Type Thumb}">
                 <Setter Property="Width"
@@ -62,78 +40,18 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="DetailDataOverviewColumnHeaderStyle"
-                   TargetType="{x:Type DataGridColumnHeader}"
-                   BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                <EventSetter Event="MouseDoubleClick"
-                             Handler="DetailOverviewHeaderClickEventHandle" />
-                <Setter Property="VerticalContentAlignment"
-                        Value="Center" />
-                <Setter Property="Template">
+            <!--<Style x:Key="FocusVisual">
+                <Setter Property="Control.Template">
                     <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
-                            <Grid>
-                                <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}"
-                                                             BorderThickness="{TemplateBinding BorderThickness}"
-                                                             Background="{TemplateBinding Background}"
-                                                             IsClickable="True"
-                                                             IsPressed="{TemplateBinding IsPressed}"
-                                                             IsHovered="{TemplateBinding IsMouseOver}"
-                                                             Padding="{TemplateBinding Padding}"
-                                                             SortDirection="{TemplateBinding SortDirection}"
-                                                             SeparatorBrush="{TemplateBinding SeparatorBrush}"
-                                                             SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
-                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                      RecognizesAccessKey="False"
-                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                      ToolTip="{Binding Path=(DataGridColumnHeader.Column).(uc:DataGridAutoFitColumn.ColumnContextType), RelativeSource={RelativeSource AncestorType=DataGridColumnHeader}}" />
-                                </Themes:DataGridHeaderBorder>
-                                <Thumb x:Name="PART_LeftHeaderGripper"
-                                       HorizontalAlignment="Left"
-                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
-                                <Thumb x:Name="PART_RightHeaderGripper"
-                                       HorizontalAlignment="Right"
-                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
-                            </Grid>
+                        <ControlTemplate>
+                            <Rectangle Margin="2"
+                                       SnapsToDevicePixels="true"
+                                       Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                                       StrokeThickness="1"
+                                       StrokeDashArray="1 2" />
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-            </Style>
-            <!--<Style x:Key="DetailDataOverviewDiffCellStyle"
-                   TargetType="{x:Type DataGridCell}">
-                <Style.Resources>
-                    <conv:CompareNearbyCellConverter x:Key="CompareNearbyCellConverter" />
-                </Style.Resources>
-                <Style.BasedOn>
-                    <StaticResource ResourceKey="{x:Type DataGridCell}" />
-                </Style.BasedOn>
-                <Style.Triggers>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding (DataGridRow.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}"
-                                       Value="0" />
-                            <Condition Binding="{Binding (ItemsControl.ItemsSource).(data:DataView.Table).(data:DataTable.TableName), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
-                                       Value="Changed" />
-                            <Condition Binding="{Binding ConverterParameter=Next, Converter={StaticResource CompareNearbyCellConverter}, RelativeSource={RelativeSource Self}}"
-                                       Value="True" />
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Background"
-                                Value="#5500FF00" />
-                    </MultiDataTrigger>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <Condition Binding="{Binding (DataGridRow.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}}"
-                                       Value="1" />
-                            <Condition Binding="{Binding (ItemsControl.ItemsSource).(data:DataView.Table).(data:DataTable.TableName), RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
-                                       Value="Changed" />
-                            <Condition Binding="{Binding ConverterParameter=Previous, Converter={StaticResource CompareNearbyCellConverter}, RelativeSource={RelativeSource Self}}"
-                                       Value="True" />
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="Background"
-                                Value="#55FF0000" />
-                    </MultiDataTrigger>
-                </Style.Triggers>
             </Style>-->
         </ResourceDictionary>
     </Window.Resources>
@@ -162,40 +80,6 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="17" />
                     </Grid.ColumnDefinitions>
-                    <!--<Grid.Triggers>
-                        <EventTrigger SourceName="ChangeMode"
-                                      RoutedEvent="ToggleButton.Unchecked">
-                            <BeginStoryboard>
-                                <Storyboard FillBehavior="Stop">
-                                    <ThicknessAnimation From="0"
-                                                        To="0,-17,0,0"
-                                                        Storyboard.TargetName="ConnStrGrid"
-                                                        Storyboard.TargetProperty="Margin"
-                                                        Duration="0:0:0.5">
-                                        <ThicknessAnimation.EasingFunction>
-                                            <QuinticEase EasingMode="EaseOut" />
-                                        </ThicknessAnimation.EasingFunction>
-                                    </ThicknessAnimation>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger SourceName="ChangeMode"
-                                      RoutedEvent="ToggleButton.Checked">
-                            <BeginStoryboard>
-                                <Storyboard FillBehavior="HoldEnd">
-                                    <ThicknessAnimation From="0,-17,0,0"
-                                                        To="0"
-                                                        Storyboard.TargetName="ConnStrGrid"
-                                                        Storyboard.TargetProperty="Margin"
-                                                        Duration="0:0:0.5">
-                                        <ThicknessAnimation.EasingFunction>
-                                            <QuinticEase EasingMode="EaseOut" />
-                                        </ThicknessAnimation.EasingFunction>
-                                    </ThicknessAnimation>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Grid.Triggers>-->
                     <Grid UseLayoutRounding="True">
                         <Label Content="Database Type"
                                Padding="2,0"
@@ -213,55 +97,30 @@
                                   Margin="82.727,0,0,0"
                                   UseLayoutRounding="True" />
                     </Grid>
-                    <!--Content="{Binding DbConnectionFields}"
-                                      ContentTemplate="{StaticResource fieldsTextboxs}"-->
-                    <!--</UniformGrid>-->
-                    <!--<UniformGrid x:Name="FieldsGrid"
-                                 Grid.Column="1"
-                                 UseLayoutRounding="True">-->
                     <ItemsControl x:Name="FieldsGrid"
                                   Grid.Column="1"
                                   ItemsSource="{Binding Fields}"
                                   ItemTemplate="{StaticResource fieldsTextboxs}"
                                   ItemsPanel="{DynamicResource connFieldsList}" />
-                    <!--<Grid x:Name="ConnStrGrid"
-                          Grid.Column="1"
-                          Margin="0,-17,0,0"
-                          VerticalAlignment="Top"
-                          UseLayoutRounding="True">
-                        <Label Content="Connection String"
-                               Padding="2,0"
-                               HorizontalAlignment="Left"
-                               BorderBrush="#FFACACAC"
-                               BorderThickness="1,1,0,1"
-                               Background="White"
-                               UseLayoutRounding="True" />
-                        <TextBox x:Name="ConnStr"
-                                 VerticalAlignment="Top"
-                                 Margin="109,0,0,0"
-                                 UseLayoutRounding="True" />
-                    </Grid>-->
-
                     <ToggleButton x:Name="ChangeMode"
                                   Grid.Column="2"
                                   UseLayoutRounding="True"
-                                  IsChecked="{Binding CustomConnectionStringMode}">
-                        <Image Source="ThirdPartyResources/Microsoft/SwitchSourceOrTarget_16x.png"
-                               RenderTransformOrigin="0.5,0.5"
-                               Stretch="UniformToFill">
-                            <Image.RenderTransform>
-                                <TransformGroup>
-                                    <RotateTransform Angle="90" />
-                                </TransformGroup>
-                            </Image.RenderTransform>
-                        </Image>
+                                  VerticalContentAlignment="Stretch"
+                                  HorizontalContentAlignment="Stretch"
+                                  IsChecked="{Binding CustomConnectionStringMode}"
+                                  Padding="0">
+                        <Rectangle Fill="{StaticResource IconSwitch}"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <Rectangle.RenderTransform>
+                                <RotateTransform Angle="90" />
+                            </Rectangle.RenderTransform>
+                        </Rectangle>
                     </ToggleButton>
                 </Grid>
                 <Button x:Name="CheckConn"
                         Command="{Binding CheckConnectionCommand}"
                         Content="Check"
                         HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
                         Width="60"
                         Padding="0"
                         Margin="0,0,77,0"
@@ -270,21 +129,19 @@
                               IsEnabled="{Binding CanSelectTable}"
                               Content="↓ Filter ↓"
                               HorizontalAlignment="Right"
-                              VerticalAlignment="Top"
                               Width="60"
                               Padding="0"
                               Margin="0,0,17,0"
                               UseLayoutRounding="True" />
                 <Button x:Name="Reset"
                         HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
                         Width="17"
-                        Padding="0"
+                        Padding="1"
                         Margin="0"
-                        UseLayoutRounding="True"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
                         Command="{Binding ResetCommand}">
-                    <Image Source="ThirdPartyResources/Microsoft/Restart_16x.png"
-                           Stretch="UniformToFill" />
+                    <Rectangle Fill="{StaticResource IconRestart}" />
                 </Button>
                 <!--Visibility="Collapsed"-->
                 <Popup x:Name="FilterPopup"
@@ -320,7 +177,7 @@
                                  Style="{StaticResource filterTBoxStyle}">
                             <TextBox.ToolTip>
                                 <TextBlock>
-                                    Auto skip <Bold>Undersource</Bold>(<Bold>_</Bold>) in match<LineBreak/>
+                                    Auto skip <Bold>Undersource</Bold>(<Bold>_</Bold>) in match<LineBreak />
                                     You also can use <Bold>Undersource</Bold> in filter string
                                 </TextBlock>
                             </TextBox.ToolTip>
@@ -341,8 +198,9 @@
                     IsEnabled="{Binding CanQuerySource}"
                     UseLayoutRounding="True">
                 <TextBlock><Span BaselineAlignment="Top"><InlineUIContainer>
-                            <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
-                                   Stretch="None" />
+                            <Rectangle Width="15"
+                                       Height="15"
+                                       Fill="{StaticResource IconQueryDatabase}" />
                         </InlineUIContainer></Span><Run Text=" Get First Snapshot" /></TextBlock>
             </Button>
 
@@ -353,8 +211,9 @@
                     Grid.Column="1"
                     UseLayoutRounding="True">
                 <TextBlock><Span BaselineAlignment="Top"><InlineUIContainer>
-                            <Image Source="ThirdPartyResources/Microsoft/DatabaseAuditSpecification_16x.png"
-                                   Stretch="None" />
+                            <Rectangle Width="15"
+                                       Height="15"
+                                       Fill="{StaticResource IconQueryDatabase}" />
                         </InlineUIContainer></Span><Run Text=" Get Second Snapshot" /></TextBlock>
             </Button>
             <Rectangle x:Name="Pro1"
@@ -397,7 +256,7 @@
                        Background="{x:Null}"
                        TextAlignment="Center"
                        UseLayoutRounding="True" />
-            <Button x:Name="ShowOldTableList"
+            <!--<Button x:Name="ShowOldTableList"
                     Grid.Row="2"
                     Grid.Column="0"
                     HorizontalAlignment="Right"
@@ -417,16 +276,18 @@
                                         Value="False" />
                             </Style>
                         </ContextMenu.ItemContainerStyle>
-                        <!--<ContextMenu.ItemTemplate>
+                        -->
+            <!--<ContextMenu.ItemTemplate>
                             <DataTemplate>
                                 <MenuItem Header="{Binding}"/>
                             </DataTemplate>
                         </ContextMenu.ItemTemplate>-->
+            <!--
                     </ContextMenu>
                 </Button.ContextMenu>
                 <Path Fill="Black"
                       Data="{StaticResource invTriangle}" />
-            </Button>
+            </Button>-->
             <Button x:Name="MoveLeftButton"
                     Grid.Row="2"
                     Grid.Column="1"
@@ -445,7 +306,7 @@
                            UseLayoutRounding="True"
                            IsHitTestVisible="False" />
             </Button>
-            <Button x:Name="ShowNewTableList"
+            <!--<Button x:Name="ShowNewTableList"
                     Grid.Row="2"
                     Grid.Column="1"
                     HorizontalAlignment="Right"
@@ -456,7 +317,7 @@
                     Foreground="{x:Null}">
                 <Path Fill="Black"
                       Data="{StaticResource invTriangle}" />
-            </Button>
+            </Button>-->
             <Button x:Name="BtnComp"
                     Command="{Binding StartComparerCommand}"
                     Grid.Row="3"
@@ -511,20 +372,17 @@
                         </TransformGroup>
                     </Rectangle.LayoutTransform>
                 </Rectangle>
-                <TextBlock x:Name="CompReState"
+                <!--<TextBlock x:Name="CompReState"
                            Text="Not Start Compare"
                            Padding="3"
                            Background="{x:Null}"
                            TextAlignment="Center"
-                           UseLayoutRounding="True" />
+                           UseLayoutRounding="True" />-->
             </Grid>
             <Grid x:Name="CompReGrid"
                   Grid.Row="5"
                   Grid.ColumnSpan="2"
                   Grid.Column="0">
-                <Grid.Resources>
-                    <BooleanToVisibilityConverter x:Key="BvConverter" />
-                </Grid.Resources>
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="RowOverviewFither"
                                    Height="Auto" />
@@ -599,7 +457,6 @@
                           CanUserDeleteRows="False"
                           HeadersVisibility="Column"
                           ItemsSource="{Binding FilteredComparerResultOverview}"
-                          d:DataContext="{d:DesignData Source=SampleData/SampleDataSource/SampleDataSource.xaml}"
                           CurrentCell="{Binding OverviewSelectedCellInfo, Converter={StaticResource SelectedCellToInfoConverter}, Mode=OneWayToSource}"
                           IsReadOnly="True"
                           SelectionUnit="Cell"
@@ -617,16 +474,9 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
                                                 <Grid>
-                                                    <Themes:DataGridHeaderBorder BorderBrush="{TemplateBinding BorderBrush}"
-                                                                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                                                                 Background="{TemplateBinding Background}"
-                                                                                 IsClickable="{TemplateBinding CanUserSort}"
-                                                                                 IsPressed="{TemplateBinding IsPressed}"
-                                                                                 IsHovered="{TemplateBinding IsMouseOver}"
-                                                                                 Padding="{TemplateBinding Padding}"
-                                                                                 SortDirection="{TemplateBinding SortDirection}"
-                                                                                 SeparatorBrush="{TemplateBinding SeparatorBrush}"
-                                                                                 SeparatorVisibility="{TemplateBinding SeparatorVisibility}">
+                                                    <Border BorderThickness="0,0,1,0"
+                                                            Padding="5,3"
+                                                            BorderBrush="#14000000">
                                                         <Grid>
                                                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                                               RecognizesAccessKey="True"
@@ -646,7 +496,7 @@
                                                                 </TextBox.ToolTip>
                                                             </TextBox>
                                                         </Grid>
-                                                    </Themes:DataGridHeaderBorder>
+                                                    </Border>
                                                     <Thumb x:Name="PART_LeftHeaderGripper"
                                                            HorizontalAlignment="Left"
                                                            Style="{StaticResource ColumnHeaderGripperStyle}" />
@@ -672,37 +522,34 @@
                         <DataGridTextColumn Header="Deleted"
                                             Visibility="{Binding DataContext.ShowDeleteColumn, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, Source={x:Reference DummyElement}}"
                                             Binding="{Binding Deleted}" />
-                        <DataGridTextColumn Header="Data In Source"
-                                            Binding="{Binding Source={x:Null}, TargetNullValue=Click To View}" />
-                        <DataGridTextColumn Header="Data In Target"
-                                            Binding="{Binding Source={x:Null}, TargetNullValue=Click To View}" />
-                        <!--<DataGridTemplateColumn Header="Data In Source">
+                        <DataGridTemplateColumn Header="Data In Source">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="{Binding TargetNullValue='Click To View'}"
-                                            Template="{StaticResource DataGridButtonCellTemplate}"
-                                            Command="{Binding DataContext.DisplayTargetDetailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}">
-                                        <Button.CommandParameter>
-                                            <MultiBinding Converter="{StaticResource CommandParameterConverter}">
-                                                <Binding Path="Column.Header"
-                                                         RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type DataGridCell}}" />
-                                                <Binding Path="Row.ItemArray[0]" />
-                                            </MultiBinding>
-                                        </Button.CommandParameter>
-                                    </Button>
+                                    <TextBlock HorizontalAlignment="Center">
+                                        <InlineUIContainer BaselineAlignment="Center">
+                                            <Rectangle Fill="{StaticResource IconViewList}"
+                                                       Width="15"
+                                                       Height="15" />
+                                        </InlineUIContainer>
+                                        View
+                                    </TextBlock>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="Data In Target">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Click To View"
-                                            Template="{StaticResource DataGridButtonCellTemplate}"
-                                            Command="{Binding DataContext.DisplayTargetDetailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}"
-                                            CommandParameter="{Binding}" />
+                                    <TextBlock HorizontalAlignment="Center">
+                                        <InlineUIContainer BaselineAlignment="Center">
+                                            <Rectangle Fill="{StaticResource IconViewList}"
+                                                       Width="15"
+                                                       Height="15" />
+                                        </InlineUIContainer>
+                                        View
+                                    </TextBlock>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>-->
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 <GridSplitter Grid.Row="2"
@@ -724,7 +571,8 @@
                         <TextBox x:Name="DetailTableFilter"
                                  Style="{StaticResource filterTBoxStyle}"
                                  PreviewKeyDown="DetailTableFilter_PreviewKeyDown"
-                                 Margin="0,0,85,0">
+                                 Margin="0,0,103,0"
+                                 BorderThickness="0.9,1,1,1">
                             <TextBox.ToolTip>
                                 <TextBlock>
                                     Press <Bold>Enter</Bold> to apply<LineBreak />
@@ -732,6 +580,28 @@
                                 </TextBlock>
                             </TextBox.ToolTip>
                         </TextBox>
+                        <Border Width="18"
+                                Margin="0,0,85,0"
+                                HorizontalAlignment="Right"
+                                ToolTipService.InitialShowDelay="0"
+                                ToolTipService.ShowDuration="9999"
+                                ToolTipService.BetweenShowDelay="0"
+                                BorderBrush="#FFABADB3"
+                                BorderThickness="0,1,1,1">
+                            <Rectangle Fill="{StaticResource IconHelp}" />
+                            <Border.ToolTip>
+                                <TextBlock>
+                                    Filter supports <Bold>Fuzzy Mode</Bold> and <Bold>Where Mode</Bold><LineBreak />
+                                    <Bold>Fuzzy Mode</Bold>: Matching entire table except binary data<LineBreak />
+                                    <Bold>Where Mode</Bold>: Matching entire table by a <Bold>Where Clause</Bold><LineBreak />
+                                    <Bold>Especially</Bold>:<LineBreak />
+                                    In <Bold>Fuzzy Mode</Bold>, "<Bold>`null</Bold>" can also match NULL cell<LineBreak />
+                                    "<Bold>` </Bold>" can also match empty string cell<LineBreak />
+                                    In <Bold>Where Mode</Bold>, use "CONVERT(colName, System.String)"<LineBreak />
+                                    method convert non-string data to a string for matching
+                                </TextBlock>
+                            </Border.ToolTip>
+                        </Border>
                         <ToggleButton x:Name="DetailFilterMode"
                                       HorizontalAlignment="Right"
                                       Width="85">
@@ -761,16 +631,87 @@
                               IsReadOnly="True"
                               TargetUpdated="DataGrid_TargetUpdated"
                               AlternationCount="2"
-                              AutoGeneratedColumns="DetailDataOverview_AutoGeneratedColumns"
                               AutoGeneratingColumn="DetailDataOverview_AutoGeneratingColumn"
-                              ColumnHeaderStyle="{DynamicResource DetailDataOverviewColumnHeaderStyle}"
+                              VirtualizingStackPanel.VirtualizationMode="Standard"
                               Tag="{Binding DiffFields}"
                               SelectionUnit="Cell"
+                              ScrollViewer.CanContentScroll="True"
                               Margin="0"
                               Grid.Row="1">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="{x:Type DataGridColumnHeader}"
+                                   BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                <EventSetter Event="MouseDoubleClick"
+                                             Handler="DetailOverviewHeaderClickEventHandle" />
+                                <Setter Property="VerticalContentAlignment"
+                                        Value="Center" />
+                                <Setter Property="Background"
+                                        Value="{x:Null}" />
+                                <Setter Property="BorderThickness"
+                                        Value="0" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                                            <Grid>
+                                                <Button Name="PART_Button" IsEnabled="True"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        Padding="5,4,5,3"
+                                                        BorderThickness="1,0,1,1">
+                                                    <Button.BorderBrush>
+                                                        <LinearGradientBrush EndPoint="0.5,1"
+                                                                             StartPoint="0.5,0">
+                                                            <GradientStop Color="#FFF2F2F2"
+                                                                          Offset="0" />
+                                                            <GradientStop Color="#FFD5D5D5"
+                                                                          Offset="1" />
+                                                            <GradientStop Color="#FFEFEFEF"
+                                                                          Offset="0.4" />
+                                                            <GradientStop Color="#FFE6E7E9"
+                                                                          Offset="0.4" />
+                                                        </LinearGradientBrush>
+                                                    </Button.BorderBrush>
+                                                    <Button.Background>
+                                                        <LinearGradientBrush EndPoint="0.5,1"
+                                                                             StartPoint="0.5,0">
+                                                            <GradientStop Color="#FFF2F3F5"
+                                                                          Offset="1" />
+                                                            <GradientStop Color="White" />
+                                                            <GradientStop Color="White"
+                                                                          Offset="0.4" />
+                                                            <GradientStop Color="#FFF7F8FA"
+                                                                          Offset="0.4" />
+                                                        </LinearGradientBrush>
+                                                    </Button.Background>
+                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                      RecognizesAccessKey="False"
+                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                      ToolTip="{Binding Path=(DataGridColumnHeader.Column).(uc:DataGridAutoFitColumn.ColumnContextType), RelativeSource={RelativeSource AncestorType=DataGridColumnHeader}}" />
+                                                </Button>
+                                                <Thumb x:Name="PART_LeftHeaderGripper"
+                                                       HorizontalAlignment="Left"
+                                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
+                                                <Thumb x:Name="PART_RightHeaderGripper"
+                                                       HorizontalAlignment="Right"
+                                                       Style="{StaticResource ColumnHeaderGripperStyle}" />
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsPressed"
+                                                         SourceName="PART_Button" Value="True">
+                                                    <Setter Property="Background"
+                                                            TargetName="PART_Button" Value="Gray"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
                         <DataGrid.CellStyle>
-                            <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Style TargetType="DataGridCell"
+                                   BasedOn="{StaticResource {x:Type DataGridCell}}">
+                                <Setter Property="VerticalContentAlignment"
+                                        Value="Center" />
                             </Style>
                         </DataGrid.CellStyle>
                         <DataGrid.ContextMenu>
@@ -782,54 +723,8 @@
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
-                    <!--CellStyle="{StaticResource DetailDataOverviewDiffCellStyle}"-->
                 </Grid>
             </Grid>
-            <!--<local:DataTableListItem TableName="TableName"
-                                         TableNameClickEvent="CopyTableName" />-->
-            <!--
-                </ListBox>
-                <GridSplitter Grid.Row="1"
-                              Height="5"
-                              ResizeBehavior="PreviousAndNext"
-                              ResizeDirection="Rows"
-                              ShowsPreview="True"
-                              Background="#FFABADB3"
-                              HorizontalAlignment="Stretch"
-                              DragIncrement="5"
-                              Foreground="{x:Null}" />
-                <TextBox x:Name="CompReT"
-                         Grid.Row="2"
-                         IsReadOnly="True"
-                         TextWrapping="Wrap"
-                         VerticalScrollBarVisibility="Auto"
-                         Visibility="{Binding IsChecked, Converter={StaticResource BvConverter}, ElementName=IsShowText}"
-                         BorderThickness="0,1,0,0" />
-            </Grid>-->
-            <!--<Popup Grid.Row="5"
-                   Grid.Column="0"
-                   x:Name="PopDataTable"
-                   MaxWidth="800"
-                   MaxHeight="600"
-                   PopupAnimation="Slide"
-                   StaysOpen="False"
-                   IsOpen="{Binding StaysOpen, ElementName=popTableNames, Mode=OneWayToSource}"
-                   Placement="Left"
-                   HorizontalOffset="{Binding -PlacementTarget.(FrameworkElement.ActualWidth), RelativeSource={RelativeSource Self}}">
-                <DataGrid x:Name="DataTableGrid"
-                          CanUserReorderColumns="False"
-                          CanUserResizeColumns="False"
-                          CanUserResizeRows="False"
-                          HeadersVisibility="Column"
-                          IsReadOnly="True"
-                          ItemsSource="{Binding}" />
-            </Popup>-->
-            <!--<Popup x:Name="popTableNames"
-                   MaxWidth="300"
-                   MaxHeight="600"
-                   PopupAnimation="Slide">
-                <ListBox x:Name="tableNames" />
-            </Popup>-->
         </Grid>
     </local:TopMsg>
 </Window>

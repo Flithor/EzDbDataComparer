@@ -45,6 +45,92 @@ namespace Expression.Blend.SampleData.SampleDataSource
                 return this._FilteredComparerResultOverview;
             }
         }
+
+        private SelectedDetail _SelectedDetail = new SelectedDetail();
+
+        public SelectedDetail SelectedDetail
+        {
+            get
+            {
+                return this._SelectedDetail;
+            }
+        }
+
+        private bool _HideUnchangedTables = false;
+
+        public bool HideUnchangedTables
+        {
+            get
+            {
+                return this._HideUnchangedTables;
+            }
+
+            set
+            {
+                if (this._HideUnchangedTables != value)
+                {
+                    this._HideUnchangedTables = value;
+                    this.OnPropertyChanged("HideUnchangedTables");
+                }
+            }
+        }
+
+        private bool _HideEmptyTables = false;
+
+        public bool HideEmptyTables
+        {
+            get
+            {
+                return this._HideEmptyTables;
+            }
+
+            set
+            {
+                if (this._HideEmptyTables != value)
+                {
+                    this._HideEmptyTables = value;
+                    this.OnPropertyChanged("HideEmptyTables");
+                }
+            }
+        }
+
+        private bool _ShowSameColumn = false;
+
+        public bool ShowSameColumn
+        {
+            get
+            {
+                return this._ShowSameColumn;
+            }
+
+            set
+            {
+                if (this._ShowSameColumn != value)
+                {
+                    this._ShowSameColumn = value;
+                    this.OnPropertyChanged("ShowSameColumn");
+                }
+            }
+        }
+
+        private bool _ShowChangedColumn = false;
+
+        public bool ShowChangedColumn
+        {
+            get
+            {
+                return this._ShowChangedColumn;
+            }
+
+            set
+            {
+                if (this._ShowChangedColumn != value)
+                {
+                    this._ShowChangedColumn = value;
+                    this.OnPropertyChanged("ShowChangedColumn");
+                }
+            }
+        }
     }
 
     public class FilteredComparerResultOverview : System.Collections.ObjectModel.ObservableCollection<FilteredComparerResultOverviewItem>
@@ -154,6 +240,156 @@ namespace Expression.Blend.SampleData.SampleDataSource
                 {
                     this._Deleted = value;
                     this.OnPropertyChanged("Deleted");
+                }
+            }
+        }
+    }
+
+    public class SelectedDetail : System.Collections.ObjectModel.ObservableCollection<SelectedDetailItem>
+    { 
+    }
+
+    public class SelectedDetailItem : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+            {
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        private string _ColumnA = string.Empty;
+
+        public string ColumnA
+        {
+            get
+            {
+                return this._ColumnA;
+            }
+
+            set
+            {
+                if (this._ColumnA != value)
+                {
+                    this._ColumnA = value;
+                    this.OnPropertyChanged("ColumnA");
+                }
+            }
+        }
+
+        private string _ColumnB = string.Empty;
+
+        public string ColumnB
+        {
+            get
+            {
+                return this._ColumnB;
+            }
+
+            set
+            {
+                if (this._ColumnB != value)
+                {
+                    this._ColumnB = value;
+                    this.OnPropertyChanged("ColumnB");
+                }
+            }
+        }
+
+        private string _ColumnC = string.Empty;
+
+        public string ColumnC
+        {
+            get
+            {
+                return this._ColumnC;
+            }
+
+            set
+            {
+                if (this._ColumnC != value)
+                {
+                    this._ColumnC = value;
+                    this.OnPropertyChanged("ColumnC");
+                }
+            }
+        }
+
+        private double _ColumnD = 0;
+
+        public double ColumnD
+        {
+            get
+            {
+                return this._ColumnD;
+            }
+
+            set
+            {
+                if (this._ColumnD != value)
+                {
+                    this._ColumnD = value;
+                    this.OnPropertyChanged("ColumnD");
+                }
+            }
+        }
+
+        private string _ColumnE = string.Empty;
+
+        public string ColumnE
+        {
+            get
+            {
+                return this._ColumnE;
+            }
+
+            set
+            {
+                if (this._ColumnE != value)
+                {
+                    this._ColumnE = value;
+                    this.OnPropertyChanged("ColumnE");
+                }
+            }
+        }
+
+        private string _ColumnF = string.Empty;
+
+        public string ColumnF
+        {
+            get
+            {
+                return this._ColumnF;
+            }
+
+            set
+            {
+                if (this._ColumnF != value)
+                {
+                    this._ColumnF = value;
+                    this.OnPropertyChanged("ColumnF");
+                }
+            }
+        }
+
+        private System.Windows.Media.ImageSource _ColumnG = null;
+
+        public System.Windows.Media.ImageSource ColumnG
+        {
+            get
+            {
+                return this._ColumnG;
+            }
+
+            set
+            {
+                if (this._ColumnG != value)
+                {
+                    this._ColumnG = value;
+                    this.OnPropertyChanged("ColumnG");
                 }
             }
         }

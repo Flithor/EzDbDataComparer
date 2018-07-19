@@ -3,7 +3,7 @@
    此文件由设计工具再生成。更改
    此文件可能会导致错误。
 -->
-<SampleDataSource:SampleDataSource xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource">
+<SampleDataSource:SampleDataSource xmlns:SampleDataSource="clr-namespace:Expression.Blend.SampleData.SampleDataSource" HideUnchangedTables="True" HideEmptyTables="True" ShowSameColumn="True" ShowChangedColumn="True">
 	<SampleDataSource:SampleDataSource.FilteredComparerResultOverview>
 		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Cras class" Same="75" Changed="88" Inserted="52" Deleted="20"/>
 		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Aliquam curae aenean" Same="28" Changed="78" Inserted="32" Deleted="70"/>
@@ -16,4 +16,16 @@
 		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Amet lorem quisque bibendum" Same="65" Changed="52" Inserted="30" Deleted="94"/>
 		<SampleDataSource:FilteredComparerResultOverviewItem Table_Name="Ante cursus" Same="91" Changed="42" Inserted="17" Deleted="85"/>
 	</SampleDataSource:SampleDataSource.FilteredComparerResultOverview>
+	<SampleDataSource:SampleDataSource.SelectedDetail>
+		<SampleDataSource:SelectedDetailItem ColumnA="Class aenean curae" ColumnB="4567 Main St., Buffalo, NY 98052" ColumnC="$100" ColumnD="55" ColumnE="http://www.adatum.com/" ColumnF="A. Datum Corporation" ColumnG="SampleDataSource_Files\image01.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Aliquam integer cras" ColumnB="1234 Main St., Buffalo, NY 98052" ColumnC="$29.99" ColumnD="87" ColumnE="http://www.adventure-works.com/" ColumnF="Adventure Works" ColumnG="SampleDataSource_Files\image02.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Duis quisque" ColumnB="2345 Main St., Buffalo, NY 98052" ColumnC="$249.99" ColumnD="34" ColumnE="http://www.adventure-works.com/" ColumnF="Adventure Works" ColumnG="SampleDataSource_Files\image03.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Nam maecenas" ColumnB="789 Main St., Buffalo, NY 98052" ColumnC="$1000" ColumnD="39" ColumnE="http://www.alpineskihouse.com/" ColumnF="Alpine Ski House" ColumnG="SampleDataSource_Files\image04.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Vivamus aliquam praesent aliquet" ColumnB="1234 Front St., Seattle, WA 12345" ColumnC="$300" ColumnD="49" ColumnE="http://www.contoso.com/" ColumnF="Contoso, Ltd" ColumnG="SampleDataSource_Files\image05.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Donec sed nunc dis" ColumnB="2345 Front St., Seattle, WA 12345" ColumnC="$10,999" ColumnD="52" ColumnE="http://www.contoso.com/" ColumnF="Contoso Pharmaceuticals" ColumnG="SampleDataSource_Files\image01.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Blandit etiam" ColumnB="789 Front St., Seattle, WA 12345" ColumnC="$49.99" ColumnD="53" ColumnE="http://www.fabrikam.com/" ColumnF="Fabrikam, Inc." ColumnG="SampleDataSource_Files\image02.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Fusce mauris lorem" ColumnB="4567 Main St., Seattle, WA 12345" ColumnC="$25.34" ColumnD="33" ColumnE="http://www.fourthcoffee.com/" ColumnF="Fourth Coffee" ColumnG="SampleDataSource_Files\image03.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Amet accumsan commodo ante" ColumnB="1234 1st Ave, San Francisco, CA 99999" ColumnC="$100" ColumnD="64" ColumnE="http://www.graphicdesigninstitute.com/" ColumnF="Graphic Design Institute" ColumnG="SampleDataSource_Files\image04.png"/>
+		<SampleDataSource:SelectedDetailItem ColumnA="Nullam est morbi bibendum" ColumnB="2345 1st Ave, San Francisco, CA 99999" ColumnC="$29.99" ColumnD="73" ColumnE="http://www.humongousinsurance.com/" ColumnF="Humongous Insurance" ColumnG="SampleDataSource_Files\image05.png"/>
+	</SampleDataSource:SampleDataSource.SelectedDetail>
 </SampleDataSource:SampleDataSource>
