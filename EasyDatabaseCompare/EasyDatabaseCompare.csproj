@@ -150,7 +150,6 @@
     <Compile Include="Service\DataService.cs" />
     <Compile Include="StyleSelectors\ShowDiffSelector.cs" />
     <Compile Include="TopMsg.cs" />
-    <Compile Include="UserControls\AutoFreshElement.cs" />
     <Compile Include="UserControls\ListBoxExtensions.cs" />
     <Compile Include="UserControls\DataGridAutoFitColumn.cs" />
     <Compile Include="ViewModel\WindowViewModel.CodeForDesign.cs">
