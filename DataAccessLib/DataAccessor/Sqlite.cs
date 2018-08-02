@@ -6,28 +6,30 @@ using DataAccessLib.Entities;
 
 namespace DataAccessLib.DataAccessor
 {
-    public sealed class Sqlite : DataAccessorBase
+    public sealed class Sqlite : DataAccessorBase<SQLiteConnection>
     {
         public Sqlite(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
         public override string ConnectionStringFormat =>
-            "Data Source={0};Version=3;Password={1};Read Only=True;FailIfMissing=True";
-
+                "Data Source={0};Version=3;Password={1};Read Only=True;FailIfMissing=True";
+        
         internal override string[] ConnectionStringFieldNames { get; } = { "Data Source", "Password" };
-
-        internal override bool CheckConnection(string connStr) => CheckConnection<SQLiteConnection>(connStr);
-
+        
         #region Query
         public override IEnumerable<string> GetDataBaseTableNames()
         {
             using (var conn = new SQLiteConnection(ConnStr))
             {
+                conn.BusyTimeout = 10000;
                 conn.Open();
-                using (var reader = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", conn).ExecuteReader())
+                using (var com = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", conn))
                 {
-                    var re = new List<string>();
-                    while (reader.Read())
-                        re.Add(reader["name"].ToString());
-                    return re.ToArray();
+                    using (var reader = com.ExecuteReader())
+                    {
+                        var re = new List<string>();
+                        while (reader.Read())
+                            re.Add(reader["name"].ToString());
+                        return re.ToArray();
+                    }
                 }
             }
         }

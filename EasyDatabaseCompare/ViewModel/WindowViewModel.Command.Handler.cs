@@ -22,12 +22,13 @@ namespace EasyDatabaseCompare.ViewModel
             SelectedTables.Clear();
             SelectedDetail = null;
             FilteredComparerResultOverview = null;
+            OnPropertyChanged(nameof(SelectedDbType));
         }
 
         public void CheckConnection()
         {
-            if (SelecctedDbType == null) throw new InvalidOperationException("SelecctedDbType Is Null!");
-            Querier.CreateDataAccessor(SelecctedDbType, Fields.Select(info => info.FieldValue).ToArray());
+            if (SelectedDbType == null) throw new InvalidOperationException("SelectedDbType Is Null!");
+            Querier.CreateDataAccessor(SelectedDbType, Fields.Select(info => info.FieldValue).ToArray());
             TableNames = Querier.TableNames.ToArray();
         }
         public void QuerySource()

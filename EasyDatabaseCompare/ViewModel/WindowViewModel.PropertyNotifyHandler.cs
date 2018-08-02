@@ -16,20 +16,20 @@ namespace EasyDatabaseCompare.ViewModel
         {
             switch (e.PropertyName)
             {
-                case "SourceData":
+                case nameof(SourceData):
                     CanQueryTarget = DataCache.SourceData != null;
                     break;
-                case "TargetData":
+                case nameof(TargetData):
                     CanStartComparer = DataCache.TargetData != null;
                     break;
-                case "SelecctedDbType":
+                case nameof(SelectedDbType):
                     SelectedDbTypeChanged();
                     break;
-                case "ConnectionChecked":
+                case nameof(ConnectionChecked):
                     CanSelectTable = ConnectionChecked;
                     CanQuerySource = ConnectionChecked;
                     break;
-                case "CustomConnectionStringMode":
+                case nameof(CustomConnectionStringMode):
                     if (CustomConnectionStringMode)
                         Fields = new List<ConnectionFieldInfo>
                         {
@@ -39,16 +39,16 @@ namespace EasyDatabaseCompare.ViewModel
                         Fields = DbConnectionFields
                             .Select(f => new ConnectionFieldInfo(f, string.Empty)).ToList();
                     break;
-                case "TableNames":
+                case nameof(TableNames):
                     if (TableNames != null && TableNames.Length > 0)
                         ConnectionChecked = true;
                     break;
-                case "HideEmptyTables":
-                case "HideUnchangedTables":
+                case nameof(HideEmptyTables):
+                case nameof(HideUnchangedTables):
                     if (DataCache.DataCompareResult == null || DataCache.DataCompareResult.Count == 0) return;
                     FilteredComparerResultOverview = CreateFilteredComparerResultOverview(DataCache.DataCompareResult);
                     break;
-                case "OverviewSelectedCellInfo":
+                case nameof(OverviewSelectedCellInfo):
                     if (string.IsNullOrEmpty(OverviewSelectedCellInfo)) break;
                     var split = OverviewSelectedCellInfo.Split(',');
                     var tn = split[0];
@@ -78,30 +78,30 @@ namespace EasyDatabaseCompare.ViewModel
                     }
                     //GC.Collect();
                     break;
-                case "BlackListMode":
-                case "ShowSameColumn":
-                case "ShowInsertColumn":
-                case "ShowDeleteColumn":
-                case "ShowChangedColumn":
-                case "FilteredComparerResultOverview":
-                case "ComparerResultOverview":
-                case "SelectedTables":
-                case "DbConnectionFields":
-                case "DataCompareResult":
-                case "CanQuerySource":
-                case "CanQueryTarget":
-                case "Querier":
-                case "CanStartComparer":
-                case "CanSelectTable":
-                case "Fields":
+                case nameof(BlackListMode):
+                case nameof(ShowSameColumn):
+                case nameof(ShowInsertColumn):
+                case nameof(ShowDeleteColumn):
+                case nameof(ShowChangedColumn):
+                case nameof(FilteredComparerResultOverview):
+                case nameof(ComparerResultOverview):
+                case nameof(SelectedTables):
+                case nameof(DbConnectionFields):
+                case nameof(DataCompareResult):
+                case nameof(CanQuerySource):
+                case nameof(CanQueryTarget):
+                case nameof(Querier):
+                case nameof(CanStartComparer):
+                case nameof(CanSelectTable):
+                case nameof(Fields):
                     break;
             }
         }
 
         private void SelectedDbTypeChanged()
         {
-            DbConnectionFields = DataAccessorInfo.SupportedDbConnectionStringFields[SelecctedDbType];
-            DbConnectionFieldsDefaultValue = DataAccessorInfo.SupportedDbConnectionStringFieldsDefaultValue[SelecctedDbType] ?? new string[DbConnectionFields.Length];
+            DbConnectionFields = DataAccessorInfo.SupportedDbConnectionStringFields[SelectedDbType];
+            DbConnectionFieldsDefaultValue = DataAccessorInfo.SupportedDbConnectionStringFieldsDefaultValue[SelectedDbType] ?? new string[DbConnectionFields.Length];
 
             if (!CustomConnectionStringMode)
                 Fields = DbConnectionFields.Zip(DbConnectionFieldsDefaultValue, (fieldName, fieldValue) => (fieldName, fieldValue))

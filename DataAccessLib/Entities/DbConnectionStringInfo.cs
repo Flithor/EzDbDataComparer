@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLib.Entities
 {
-    public class DbConnectionStringInfo 
+    public class DbConnectionStringInfo
     {
         public static DbConnectionStringInfo Empty { get; } = new DbConnectionStringInfo(string.Empty);
         public DbConnectionStringInfo(params string[] fields)
@@ -16,13 +16,13 @@ namespace DataAccessLib.Entities
             if (fields.Length == 1)
                 ConnectionString = fields[0];
             else
-                ConnecgtionStringFields = fields;
+                ConnecgtionStringFieldValues = fields;
         }
         public string ConnectionString { get; set; }
-        public string CreateConnectionString(Func<IEnumerable<string>, string> func)
+        public string CreateConnectionString(Func<string[], string> func)
         {
-            return ConnectionString ?? (ConnectionString = func?.Invoke(ConnecgtionStringFields));
+            return ConnectionString ?? (ConnectionString = func?.Invoke(ConnecgtionStringFieldValues));
         }
-        public IEnumerable<string> ConnecgtionStringFields { get; }
+        public string[] ConnecgtionStringFieldValues { get; }
     }
 }

@@ -1,6 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:EasyDatabaseCompare">
+                    xmlns:local="clr-namespace:EasyDatabaseCompare"
+                    xmlns:cv="clr-namespace:EasyDatabaseCompare.Converter"
+                    xmlns:model="clr-namespace:EasyDatabaseCompare.Model">
     <ControlTemplate TargetType="local:TopMsg"
                      x:Key="topMsgTemp">
         <ControlTemplate.Resources>
@@ -109,7 +111,7 @@
                  Click move to left</TextBlock>
         </VisualBrush.Visual>
     </VisualBrush>
-    <Path Fill="Black"
+    <!--<Path Fill="Black"
           Stroke="Black"
           StrokeThickness="1"
           x:Key="dblArrow">
@@ -128,9 +130,9 @@
     <PathGeometry x:Key="invTriangle">M0,0
         L16,0
         L8,8
-        Z</PathGeometry>
-    <ControlTemplate TargetType="TextBox"
-                     x:Key="fieldTextBoxTemp">
+        Z</PathGeometry>-->
+    <!--<ControlTemplate TargetType="TextBox"
+                     x:Key="FieldTextBoxTemp">
         <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled">
             <Label Content="{TemplateBinding Tag}"
                    Padding="2,0"
@@ -158,7 +160,7 @@
                         Value="#FF3399FF" />
             </Trigger>
         </ControlTemplate.Triggers>
-    </ControlTemplate>
+    </ControlTemplate>-->
     <ControlTemplate x:Key="contextMenuTemp"
                      TargetType="{x:Type ContextMenu}">
         <Border x:Name="Border"
@@ -177,13 +179,59 @@
                      TargetType="ItemsControl">
         
     </ControlTemplate>-->
-    <DataTemplate x:Key="fieldsTextboxs"
-                  xmlns:sys="clr-namespace:System;assembly=mscorlib">
-        <TextBox Tag="{Binding FieldName, Mode=OneWay}"
-                 Template="{StaticResource fieldTextBoxTemp}"
-                 Text="{Binding FieldValue}" />
+    <DataTemplate x:Key="TextBoxField"
+                  DataType="model:ConnectionFieldInfo">
+        <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <Label Content="{Binding FieldName, Mode=OneWay}"
+                   Padding="2,0"
+                   HorizontalAlignment="Left"
+                   BorderBrush="#FFABADB3"
+                   BorderThickness="0,1,0,1" />
+            <TextBox Text="{Binding FieldValue}" />
+        </DockPanel>
     </DataTemplate>
-    <ItemsPanelTemplate x:Key="connFieldsList">
+    <cv:ToStringConverter x:Key="ToStringConverter" />
+    <DataTemplate x:Key="CheckBoxField"
+                  DataType="model:ConnectionFieldInfo">
+        <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <Label Content="{Binding FieldName, Mode=OneWay}"
+                   Padding="2,0"
+                   HorizontalAlignment="Left"
+                   BorderBrush="#FFABADB3"
+                   BorderThickness="0,1,0,1" />
+            <ToggleButton Padding="0"
+                          IsChecked="{Binding FieldValue, Converter={StaticResource ToStringConverter}}"
+                          Content="{Binding IsChecked, Mode=OneWay, RelativeSource={RelativeSource Self}}" />
+        </DockPanel>
+    </DataTemplate>
+    <cv:ItemStringToArrayConverter x:Key="ItemStringToArrayConverter" />
+    <DataTemplate x:Key="ComboBoxField"
+                  DataType="model:ConnectionFieldInfo">
+        <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <Label Content="{Binding FieldName, Mode=OneWay}"
+                   Padding="2,0"
+                   HorizontalAlignment="Left"
+                   BorderBrush="#FFABADB3"
+                   BorderThickness="0,1,0,1" />
+            <ComboBox Padding="3,1"
+                      ItemsSource="{Binding FieldValue, Converter={StaticResource ItemStringToArrayConverter}, Mode=OneTime}"
+                      SelectedItem="{Binding FieldValue}"
+                      SelectedIndex="0" />
+        </DockPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="PasswordField"
+                  DataType="model:ConnectionFieldInfo">
+        <DockPanel ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <Label Content="{Binding FieldName, Mode=OneWay}"
+                   Padding="2,0"
+                   HorizontalAlignment="Left"
+                   BorderBrush="#FFABADB3"
+                   BorderThickness="0,1,0,1" />
+            <PasswordBox Padding="0"
+                         Password="{Binding FieldValue}" />
+        </DockPanel>
+    </DataTemplate>
+    <ItemsPanelTemplate x:Key="ConnFieldsList">
         <UniformGrid IsItemsHost="True"
                      Columns="{Binding Fields.Count}" />
     </ItemsPanelTemplate>

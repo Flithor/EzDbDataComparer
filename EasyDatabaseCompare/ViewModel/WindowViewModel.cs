@@ -13,7 +13,7 @@ namespace EasyDatabaseCompare.ViewModel
     public interface IWindowViewModel : INotifyPropertyChanged
     {
         List<DataDiff> DataCompareResult { get; set; }
-        string SelecctedDbType { get; set; }
+        string SelectedDbType { get; set; }
         List<ConnectionFieldInfo> Fields { get; }
         double QueryTargetProcess { get; set; }
         bool CanStartComparer { get; }
@@ -74,7 +74,7 @@ namespace EasyDatabaseCompare.ViewModel
             DisplayTargetDetailCommand = new WithParameterCommand(DisplayTargetDetail);
 
             SurpportDbType = DataAccessorInfo.SupportedDbConnectionStringFields.Keys.ToArray();
-            SelecctedDbType = SurpportDbType[0];
+            SelectedDbType = SurpportDbType[0];
             SelectedDbTypeChanged();
 
             PropertyChanged += PropertyChangedHandler;

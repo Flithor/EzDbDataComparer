@@ -134,8 +134,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\DllRegister.cs" />
+    <Compile Include="Common\LinqCommon.cs" />
+    <Compile Include="Common\RegistryKeyScanner.cs" />
+    <Compile Include="Common\RelativePath.cs" />
+    <Compile Include="Common\ZeroWidthMark.cs" />
+    <Compile Include="DataAccessor\FoxProOleDb.cs" />
+    <Compile Include="DataAccessor\FoxProODBC.cs" />
     <Compile Include="DataAccessor\Firebird.cs" />
     <Compile Include="DataAccessor\Module.cs" />
+    <Compile Include="DataAccessor\DBase.cs" />
     <Compile Include="Entities\DbConnectionStringInfo.cs" />
     <Compile Include="IDataAccessor.cs" />
     <Compile Include="DataAccessorInfo.cs" />
@@ -151,8 +159,10 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="DataAccessor\NewDataAccessTemplate.cs" />
-    <None Include="packages.config" />
+    <Compile Include="DataAccessor\NewDataAccessTemplate.cs" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Firebird.v2-5-x.Embedded.2.5.6.0006\build\Firebird.v2-5-x.Embedded.targets" Condition="Exists('..\packages\Firebird.v2-5-x.Embedded.2.5.6.0006\build\Firebird.v2-5-x.Embedded.targets')" />

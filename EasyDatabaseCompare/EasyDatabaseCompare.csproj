@@ -138,9 +138,11 @@
     <Compile Include="Converter\CommandParameterConverter.cs" />
     <Compile Include="Converter\CompareNearbyCellConverter.cs" />
     <Compile Include="Converter\FieldsToTextBox.cs" />
+    <Compile Include="Converter\ItemStringToArrayConverter.cs" />
     <Compile Include="Converter\SelectedCellToInfoConverter.cs" />
     <Compile Include="Converter\TextBlockHighlightSpanConverter.cs" />
     <Compile Include="Converter\TextboxToField.cs" />
+    <Compile Include="Converter\ToStringConverter.cs" />
     <Compile Include="LogicLayer\DataCacheManager.cs" />
     <Compile Include="Model\DataCacheModel.cs" />
     <Compile Include="Module.cs" />
@@ -148,6 +150,7 @@
       <DependentUpon>SampleDataSource.xaml</DependentUpon>
     </Compile>
     <Compile Include="Service\DataService.cs" />
+    <Compile Include="StyleSelectors\FieldsTextBlockTemplateSelector.cs" />
     <Compile Include="StyleSelectors\ShowDiffSelector.cs" />
     <Compile Include="TopMsg.cs" />
     <Compile Include="UserControls\ListBoxExtensions.cs" />
@@ -218,7 +221,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

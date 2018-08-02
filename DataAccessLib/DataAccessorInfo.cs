@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -14,11 +15,12 @@ namespace DataAccessLib
         static DataAccessorInfo()
         {
             SupportedDbType = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(DataAccessorBase))).ToArray();
+                .Where(t => t.IsClass && !t.IsGenericType && t.BaseType != null && t.BaseType.IsGenericType &&
+                            t.BaseType.GetGenericTypeDefinition() == (typeof(DataAccessorBase<>))).ToArray();
             SupportedDbTypeNames = SupportedDbType.Select(t => t.Name).ToArray();
             SupportedDbConnectionStringFields = SupportedDbType.ToDictionary(type => type.Name,
                 type => (Activator.CreateInstance(type, Entities.DbConnectionStringInfo.Empty) as DataAccessorBase)?.ConnectionStringFieldNames);
-            SupportedDbConnectionStringFieldsDefaultValue= SupportedDbType.ToDictionary(type => type.Name,
+            SupportedDbConnectionStringFieldsDefaultValue = SupportedDbType.ToDictionary(type => type.Name,
                 type => (Activator.CreateInstance(type, Entities.DbConnectionStringInfo.Empty) as DataAccessorBase)?.ConnectionStringFieldDefaultValue);
         }
     }

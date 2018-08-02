@@ -44,7 +44,7 @@ namespace ComparisonLib
         public bool CreateDataAccessor(string dbType, params string[] fields)
         {
             DataAccessor = Factory.Get(dbType, fields);
-            var re = DataAccessor.TryDbConnection();
+            var re = DataAccessor.CheckConnection();
             if (re) TableNames = DataAccessor.GetDataBaseTableNames();
             return re;
         }

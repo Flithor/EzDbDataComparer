@@ -7,7 +7,7 @@ using DataAccessLib.Entities;
 
 namespace DataAccessLib.DataAccessor
 {
-    public sealed class MsSqlServer : DataAccessorBase
+    public sealed class MsSqlServer : DataAccessorBase<SqlConnection>
     {
         public MsSqlServer(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
         public override string ConnectionStringFormat => "Server={0};Database={1};User Id={2};Password={3}";
@@ -15,7 +15,7 @@ namespace DataAccessLib.DataAccessor
         internal override string[] ConnectionStringFieldNames { get; } = { "Server", "Database", "UserID", "Password" };
         internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, null, "sa", "sa" };
 
-        internal override bool CheckConnection(string connStr) => CheckConnection<SqlConnection>(connStr);
+        //internal override bool CheckConnection(string connStr) => CheckConnection<SqlConnection>(connStr);
 
         public override DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null)
         {

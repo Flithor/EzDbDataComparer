@@ -8,6 +8,7 @@
         xmlns:conv="clr-namespace:EasyDatabaseCompare.Converter"
         xmlns:data="clr-namespace:System.Data;assembly=System.Data"
         xmlns:uc="clr-namespace:EasyDatabaseCompare.UserControls"
+        xmlns:styleSelectors="clr-namespace:EasyDatabaseCompare.StyleSelectors"
         x:Name="Window"
         x:Class="EasyDatabaseCompare.MainWindow"
         mc:Ignorable="d"
@@ -40,19 +41,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <!--<Style x:Key="FocusVisual">
-                <Setter Property="Control.Template">
-                    <Setter.Value>
-                        <ControlTemplate>
-                            <Rectangle Margin="2"
-                                       SnapsToDevicePixels="true"
-                                       Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
-                                       StrokeThickness="1"
-                                       StrokeDashArray="1 2" />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>-->
+            <styleSelectors:FieldsTextBlockTemplateSelector x:Key="FieldsTextBlockTemplateSelector" />
         </ResourceDictionary>
     </Window.Resources>
     <local:TopMsg x:Name="TopMsg"
@@ -89,7 +78,7 @@
                                FontSize="11"
                                UseLayoutRounding="True" />
                         <ComboBox x:Name="DbType"
-                                  Text="{Binding SelecctedDbType}"
+                                  Text="{Binding SelectedDbType}"
                                   ItemsSource="{Binding SurpportDbType}"
                                   SelectedIndex="0"
                                   IsSynchronizedWithCurrentItem="True"
@@ -100,8 +89,8 @@
                     <ItemsControl x:Name="FieldsGrid"
                                   Grid.Column="1"
                                   ItemsSource="{Binding Fields}"
-                                  ItemTemplate="{StaticResource fieldsTextboxs}"
-                                  ItemsPanel="{DynamicResource connFieldsList}" />
+                                  ItemTemplateSelector="{StaticResource FieldsTextBlockTemplateSelector}"
+                                  ItemsPanel="{StaticResource ConnFieldsList}" />
                     <ToggleButton x:Name="ChangeMode"
                                   Grid.Column="2"
                                   UseLayoutRounding="True"
@@ -653,7 +642,8 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
                                             <Grid>
-                                                <Button Name="PART_Button" IsEnabled="True"
+                                                <Button Name="PART_Button"
+                                                        IsEnabled="True"
                                                         HorizontalContentAlignment="Stretch"
                                                         Padding="5,4,5,3"
                                                         BorderThickness="1,0,1,1">
@@ -697,9 +687,11 @@
                                             </Grid>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsPressed"
-                                                         SourceName="PART_Button" Value="True">
+                                                         SourceName="PART_Button"
+                                                         Value="True">
                                                     <Setter Property="Background"
-                                                            TargetName="PART_Button" Value="Gray"/>
+                                                            TargetName="PART_Button"
+                                                            Value="Gray" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>

@@ -97,7 +97,7 @@ namespace EasyDatabaseCompare
                 case "ComparerResultOverview":
                 case "SourceData":
                 case "TargetData":
-                case "SelecctedDbType":
+                case "SelectedDbType":
                 case "SelectedTables":
                 case "BlackListMode":
                 case "TableNames":

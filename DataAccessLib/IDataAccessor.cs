@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccessLib.Common;
 using DataAccessLib.DataAccessor;
 using DataAccessLib.Entities;
 using Ninject;
@@ -14,10 +15,10 @@ namespace DataAccessLib
 {
     public interface IDataAccessor
     {
-        bool TryDbConnection();
         IEnumerable<string> GetDataBaseTableNames();
         DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null);
         DataTable QueryTable(string tableName);
+        bool CheckConnection();
     }
     public interface IDataAccessorFactory
     {
@@ -25,6 +26,7 @@ namespace DataAccessLib
         //IDataAccessor Get(string dbType, string connStr);
         //IDataAccessor Get(string dbType, params string[] fields);
     }
+
     public abstract class DataAccessorBase : IDataAccessor
     {
         internal DataAccessorBase(DbConnectionStringInfo connStrInfo)
@@ -32,28 +34,36 @@ namespace DataAccessLib
             DbConnectionStringInfo = connStrInfo;
             DbConnectionStringInfo.CreateConnectionString(BuildConnectionString);
         }
-
-        private string BuildConnectionString(IEnumerable<string> arg) => BuildConnectionString(arg.ToArray());
+        internal abstract string[] ConnectionStringFieldNames { get; }
+        internal virtual string[] ConnectionStringFieldDefaultValue { get; }
+        public abstract string ConnectionStringFormat { get; }
 
         public DbConnectionStringInfo DbConnectionStringInfo { get; }
 
-        public abstract string ConnectionStringFormat { get; }
+        //private string BuildConnectionString(IEnumerable<string> arg) =>
+        //    BuildConnectionString(arg.Replace(string.Empty, string.IsNullOrEmpty).ToArray());
+        internal virtual string BuildConnectionString(params string[] fields)
+        {
+            return string.Format(ConnectionStringFormat, fields.Replace(string.Empty, string.IsNullOrEmpty).ToArray());
+        }
 
-        internal abstract string[] ConnectionStringFieldNames { get; }
-        internal virtual string[] ConnectionStringFieldDefaultValue { get; }
+        public abstract IEnumerable<string> GetDataBaseTableNames();
+        public abstract DataTable QueryTable(string tableName);
+        public abstract DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null);
+        public abstract bool CheckConnection();
+    }
+
+    public abstract class DataAccessorBase<T> : DataAccessorBase where T : IDbConnection, new()
+    {
+        protected DataAccessorBase(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
 
         public string ConnStr => DbConnectionStringInfo.ConnectionString;
 
-        internal virtual string BuildConnectionString(params string[] fields)
-        {
-            return string.Format(ConnectionStringFormat, fields);
-        }
+        //internal abstract bool CheckConnection(string connStr);
 
-        internal abstract bool CheckConnection(string connStr);
-
-        internal virtual bool CheckConnection<T>(string connStr) where T : IDbConnection, new()
+        public override bool CheckConnection()
         {
-            using (var conn = new T { ConnectionString = connStr })
+            using (var conn = new T { ConnectionString = ConnStr })
             {
                 var t = Task.Factory.StartNew(() =>
                 {
@@ -77,16 +87,6 @@ namespace DataAccessLib
                 return false;
             }
         }
-
-        public bool TryDbConnection()
-        {
-            return CheckConnection(ConnStr);
-        }
-
-        public abstract IEnumerable<string> GetDataBaseTableNames();
-
-        public abstract DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null);
-        public abstract DataTable QueryTable(string tableName);
     }
     public class DataAccessorFactory : IDataAccessorFactory
     {

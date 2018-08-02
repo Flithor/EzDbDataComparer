@@ -15,7 +15,7 @@ namespace EasyDatabaseCompare.ViewModel
         #region DesignCode
         public WindowViewModel() : this(new DataCacheModel(), new StandardKernel(new Module()).Get<IDataQuery>(), new DataComparer())
         {
-            //SelecctedDbType = "MsSqlServer";
+            //SelectedDbType = "MsSqlServer";
             //CustomConnectionStringMode = true;
             //Fields[0].Value = "Server=127.0.0.1,51433;Database=V2895;User Id=sghtis;Password=h8848";
             //CheckConnectionCommand.Execute(null);

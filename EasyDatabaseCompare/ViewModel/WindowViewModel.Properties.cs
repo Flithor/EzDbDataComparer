@@ -18,7 +18,7 @@ namespace EasyDatabaseCompare.ViewModel
         private bool _canQueryTarget;
         //private IDataQuery _querier;
         private bool _canStartComparer;
-        private string _selecctedDbType;
+        private string _selectedDbType;
         private bool _canCheckConnection;
         private HashSet<string> _selectedTables;
         private bool _canSelectTable;
@@ -71,13 +71,13 @@ namespace EasyDatabaseCompare.ViewModel
         }
 
 
-        public string SelecctedDbType
+        public string SelectedDbType
         {
-            get => _selecctedDbType;
+            get => _selectedDbType;
             set
             {
-                _selecctedDbType = value;
-                OnPropertyChanged(nameof(SelecctedDbType));
+                _selectedDbType = value;
+                OnPropertyChanged(nameof(SelectedDbType));
             }
         }
 

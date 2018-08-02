@@ -13,7 +13,7 @@ namespace DataAccessLibUnitTest
         [TestMethod]
         public void DataAccessorCreateTest()
         {
-            using (var module = new DataAccessModule())
+            using (var module = new Module())
             using (var kernel = new StandardKernel(module))
             {
                 var factory = kernel.Get<IDataAccessorFactory>();

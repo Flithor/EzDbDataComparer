@@ -6,7 +6,7 @@ using DataAccessLib.Entities;
 
 namespace DataAccessLib.DataAccessor
 {
-    public sealed class MySql : DataAccessorBase
+    public sealed class MySql : DataAccessorBase<MySqlConnection>
     {
         public MySql(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
         public override string ConnectionStringFormat =>
@@ -15,8 +15,7 @@ namespace DataAccessLib.DataAccessor
         internal override string[] ConnectionStringFieldNames { get; } = { "Server", "Port", "Database", "UserID", "Password" };
         internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, "3306", null, "root", null };
 
-        internal override bool CheckConnection(string connStr) => CheckConnection<MySqlConnection>(connStr);
-
+        //internal override bool CheckConnection(string connStr) => CheckConnection<MySqlConnection>(connStr);
 
         public override DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null)
         {

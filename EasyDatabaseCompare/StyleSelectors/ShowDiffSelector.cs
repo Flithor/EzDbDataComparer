@@ -15,12 +15,4 @@ namespace EasyDatabaseCompare.StyleSelectors
             return base.SelectStyle(item, container);
         }
     }
-    class ShowDiffTemplateSelector : DataTemplateSelector
-    {
-        public IEnumerable<ControlTemplate> Templates;
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            return base.SelectTemplate(item, container);
-        }
-    }
 }

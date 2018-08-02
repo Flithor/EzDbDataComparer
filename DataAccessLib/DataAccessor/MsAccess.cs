@@ -6,7 +6,7 @@ using DataAccessLib.Entities;
 
 namespace DataAccessLib.DataAccessor
 {
-    public sealed class MsAccess : DataAccessorBase
+    public sealed class MsAccess : DataAccessorBase<OleDbConnection>
     {
         public MsAccess(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
 
@@ -15,7 +15,7 @@ namespace DataAccessLib.DataAccessor
 
         internal override string[] ConnectionStringFieldNames { get; } = { "Data Source", "UserID", "Password" };
 
-        internal override bool CheckConnection(string connStr) => CheckConnection<OleDbConnection>(connStr);
+        //internal override bool CheckConnection(string connStr) => CheckConnection<OleDbConnection>(connStr);
 
         public override DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null)
         {

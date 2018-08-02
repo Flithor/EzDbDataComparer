@@ -6,10 +6,10 @@ using DataAccessLib.Entities;
 
 namespace DataAccessLib.DataAccessor
 {
-    public sealed class Firebird : DataAccessorBase
+    public sealed class Firebird : DataAccessorBase<FbConnection>
     {
         public Firebird(DbConnectionStringInfo connStrInfo) : base(connStrInfo) { }
-        public override string ConnectionStringFormat =>
+        public override string ConnectionStringFormat { get; } =
             "Database={0};" +
             "User={1};" +
             "Password={2};" +
@@ -25,7 +25,7 @@ namespace DataAccessLib.DataAccessor
         //"Provider=sibprovider;Data Source={0};User Id={1};Password={2};charset=utf8;pooling=true";
         internal override string[] ConnectionStringFieldNames { get; } = { "DataBase Path", "User Name", "Password" };
         internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, "sysdba", "masterkey" };
-        internal override bool CheckConnection(string connStr) => CheckConnection<FbConnection>(connStr);
+        //internal override bool CheckConnection(string connStr) => CheckConnection<FbConnection>(connStr);
 
         public override DataSet QueryTables(IEnumerable<string> tableNames, Action processCallBack = null)
         {
