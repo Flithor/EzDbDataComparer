@@ -144,7 +144,7 @@ namespace ComparisonLib
                     if (DataRowCellComparer.Default.Equals(sourceDic[key], targetDic[key]))
                         diff.SameData.Add(sourceDic[key]);
                     else
-                        diff.ChangedDatas.Add((sourceDic[key], targetDic[key]));
+                        diff.ChangedDatas.Add(Tuple.Create(sourceDic[key], targetDic[key]));
                 }
             }
             #endregion
@@ -194,7 +194,7 @@ namespace ComparisonLib
         public DataTable TargetTable { get; internal set; }
         public List<DataRow> DeletedDatas { get; internal set; } = new List<DataRow>();
         public List<DataRow> InsertedDatas { get; internal set; } = new List<DataRow>();
-        public List<(DataRow RowInSource, DataRow RowInTarget)> ChangedDatas { get; internal set; } = new List<(DataRow RowInSource, DataRow RowInTarget)>();
+        public List<Tuple<DataRow, DataRow>> ChangedDatas { get; internal set; } = new List<Tuple<DataRow, DataRow>>();
         public List<DataRow> SameData { get; internal set; } = new List<DataRow>();
 
         private DisplayTables _displayTables;
@@ -267,13 +267,13 @@ namespace ComparisonLib
                     Parent.ChangedDatas.ForEach(r =>
                     {
                         var oldRow = _changedData.NewRow();
-                        oldRow.ItemArray = r.RowInSource.ItemArray;
+                        oldRow.ItemArray = r.Item1.ItemArray;
                         _changedData.Rows.Add(oldRow);
                         oldRow.AcceptChanges();
-                        var diffFields = DataRowCellComparer.GetDiffFields(oldRow, r.RowInTarget).ToArray();
+                        var diffFields = DataRowCellComparer.GetDiffFields(oldRow, r.Item2).ToArray();
                         foreach (var f in diffFields)
                         {
-                            oldRow[f] = r.RowInTarget[f];
+                            oldRow[f] = r.Item2[f];
                         }
                         DiffFieldsOfRow.Add(oldRow, diffFields);
                         //newRow.ItemArray = r.RowInTarget.ItemArray;

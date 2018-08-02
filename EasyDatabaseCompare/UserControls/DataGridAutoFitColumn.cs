@@ -236,7 +236,7 @@ namespace EasyDatabaseCompare.UserControls
             }
             BindingOperations.ClearBinding(re, TextBlock.TextProperty);
             var splitAll = SplitAll(val.ToString(), HighlightString, true);
-            re.Inlines.AddRange(splitAll.Select(m => m.isMatch ? new Run(m.subString) { Background = HighlightColor } : new Run(m.subString)));
+            re.Inlines.AddRange(splitAll.Select(m => m.Item2 ? new Run(m.Item1) { Background = HighlightColor } : new Run(m.Item1)));
             return re;
         }
 
@@ -350,7 +350,7 @@ namespace EasyDatabaseCompare.UserControls
             return null;
         }
 
-        private IEnumerable<(string subString, bool isMatch)> SplitAll(string orgString, string matchString,
+        private IEnumerable<Tuple<string, bool>> SplitAll(string orgString, string matchString,
             bool ignoreCase = false)
         {
             if (string.IsNullOrEmpty(matchString)) yield break;
@@ -361,12 +361,12 @@ namespace EasyDatabaseCompare.UserControls
             {
                 var subStr = tempStr.Substring(0, lastIndex);
                 if (!string.IsNullOrEmpty(subStr))
-                    yield return (subStr, false);
-                yield return (tempStr.Substring(lastIndex, matchString.Length), true);
+                    yield return Tuple.Create(subStr, false);
+                yield return Tuple.Create(tempStr.Substring(lastIndex, matchString.Length), true);
                 tempStr = tempStr.Substring(lastIndex + matchString.Length);
             }
             if (!string.IsNullOrEmpty(tempStr))
-                yield return (tempStr, false);
+                yield return Tuple.Create(tempStr, false);
         }
     }
 }

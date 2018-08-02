@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Runtime;
 
 namespace EasyDatabaseCompare.ViewModel
 {
@@ -104,8 +105,8 @@ namespace EasyDatabaseCompare.ViewModel
             DbConnectionFieldsDefaultValue = DataAccessorInfo.SupportedDbConnectionStringFieldsDefaultValue[SelectedDbType] ?? new string[DbConnectionFields.Length];
 
             if (!CustomConnectionStringMode)
-                Fields = DbConnectionFields.Zip(DbConnectionFieldsDefaultValue, (fieldName, fieldValue) => (fieldName, fieldValue))
-                    .Select(f => new ConnectionFieldInfo(f.fieldName, f.fieldValue)).ToList();
+                Fields = DbConnectionFields.Zip(DbConnectionFieldsDefaultValue, Tuple.Create)
+                    .Select(f => new ConnectionFieldInfo(f.Item1, f.Item2)).ToList();
         }
     }
 }
