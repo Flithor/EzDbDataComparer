@@ -22,7 +22,7 @@ namespace DataAccessLib.DataAccessor
 
         internal override string BuildConnectionString(params string[] fields)
         {
-            var dataSource = fields[0];
+            var dataSource = DataSourcePath = fields[0];
             if (File.Exists(dataSource))
             {
                 fields[0] = Path.GetDirectoryName(dataSource);
@@ -34,18 +34,21 @@ namespace DataAccessLib.DataAccessor
             throw new FileNotFoundException("Not found this data source!"); //NotExit
         }
 
+        private string DataSourcePath;
+        private bool OneFileMode = false;
         #region Query
         public override IEnumerable<string> GetDataBaseTableNames()
         {
             var dataSource = DbConnectionStringInfo.ConnecgtionStringFieldValues[0];
             if (File.Exists(dataSource))
             {
+                OneFileMode = true;
                 DbConnectionStringInfo.ConnecgtionStringFieldValues[0] = Path.GetDirectoryName(dataSource);
                 return new[] { Path.GetFileNameWithoutExtension(dataSource) };
             } //FileMode
             else if (Directory.Exists(dataSource))
             {
-                return Directory.GetFiles(dataSource, "*.dbf", SearchOption.AllDirectories).Select(fp =>
+                var tnames = Directory.GetFiles(dataSource, "*.dbf", SearchOption.AllDirectories).Select(fp =>
                 {
                     var osb = new StringBuilder(1024);
                     Console.WriteLine(fp);
@@ -54,7 +57,8 @@ namespace DataAccessLib.DataAccessor
                     if (re)
                         return osb.ToString();
                     throw new Exception("Get relative path error!");
-                });
+                }).ToArray();
+                return tnames.Length > 0 ? tnames : throw new DataException($"Not found any dbf file!");
             }//DirMode
             else { throw new FileNotFoundException("Not found this data source!"); } //NotExit
         }
@@ -65,7 +69,7 @@ namespace DataAccessLib.DataAccessor
         }
         public override DataTable QueryTable(string tableName)
         {
-            tableName = Uri.IsWellFormedUriString(tableName, UriKind.Absolute) ? $"[{tableName}]" : $"{tableName}";
+            tableName = OneFileMode ? $"[{tableName}]" : Path.GetFullPath(Path.Combine(DataSourcePath, tableName));
             var dt = new DataTable();
             using (var conn = new OleDbConnection(ConnStr))
             {

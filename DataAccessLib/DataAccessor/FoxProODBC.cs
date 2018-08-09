@@ -18,8 +18,8 @@ namespace DataAccessLib.DataAccessor
 
         public override string ConnectionStringFormat =>
             "Driver={{Microsoft Visual FoxPro Driver}};" +
-            "SourceDB={0};" + 
-            "SourceType={1};" + 
+            "SourceDB={0};" +
+            "SourceType={1};" +
             "Exclusive=No;NULL=NO;Collate=Machine;BACKGROUNDFETCH=NO;DELETED=NO;applicationintent=readonly";
         internal override string[] ConnectionStringFieldNames { get; } = { "Data Source", "SourceType" };
         internal override string[] ConnectionStringFieldDefaultValue { get; } = { null, "DBF" };
@@ -49,7 +49,7 @@ namespace DataAccessLib.DataAccessor
             } //FileMode
             else if (Directory.Exists(dataSource))
             {
-                return Directory.GetFiles(dataSource, $"*.{extension}", SearchOption.AllDirectories).Select(fp =>
+                var tnames = Directory.GetFiles(dataSource, $"*.{extension}", SearchOption.AllDirectories).Select(fp =>
                 {
                     var osb = new StringBuilder(1024);
                     Console.WriteLine(fp);
@@ -59,6 +59,7 @@ namespace DataAccessLib.DataAccessor
                         return osb.ToString();
                     throw new Exception("Get relative path error!");
                 }).ToArray();
+                return tnames.Length > 0 ? tnames : throw new DataException($"Not found any {extension} file!");
             }//DirMode
             else { throw new FileNotFoundException("Not found this data source!"); } //NotExit
         }

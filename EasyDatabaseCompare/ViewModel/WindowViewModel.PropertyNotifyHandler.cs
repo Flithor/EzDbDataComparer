@@ -36,8 +36,7 @@ namespace EasyDatabaseCompare.ViewModel
                             new ConnectionFieldInfo("ConnectionString", string.Empty)
                         };
                     else
-                        Fields = DbConnectionFields
-                            .Select(f => new ConnectionFieldInfo(f, string.Empty)).ToList();
+                        SelectedDbTypeChanged();
                     break;
                 case nameof(TableNames):
                     if (TableNames != null && TableNames.Length > 0)

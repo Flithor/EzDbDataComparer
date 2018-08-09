@@ -48,16 +48,17 @@ namespace DataAccessLib.DataAccessor
             } //FileMode
             else if (Directory.Exists(dataSource))
             {
-                return Directory.GetFiles(dataSource, "*.dbf", SearchOption.AllDirectories).Select(fp =>
-                {
-                    var osb = new StringBuilder(1024);
-                    Console.WriteLine(fp);
-                    var re = RelativePath.PathRelativePathTo(osb, dataSource, FileAttributes.Directory, fp,
-                         FileAttributes.Normal);
-                    if (re)
-                        return osb.ToString();
-                    throw new Exception("Get relative path error!");
-                }).ToArray();
+                var tnames = Directory.GetFiles(dataSource, "*.dbf", SearchOption.AllDirectories).Select(fp =>
+                 {
+                     var osb = new StringBuilder(1024);
+                     Console.WriteLine(fp);
+                     var re = RelativePath.PathRelativePathTo(osb, dataSource, FileAttributes.Directory, fp,
+                          FileAttributes.Normal);
+                     if (re)
+                         return osb.ToString();
+                     throw new Exception("Get relative path error!");
+                 }).ToArray();
+                return tnames.Length > 0 ? tnames : throw new DataException("Not found any dbf file!");
             }//DirMode
             else { throw new FileNotFoundException("Not found this data source!"); } //NotExit
         }
