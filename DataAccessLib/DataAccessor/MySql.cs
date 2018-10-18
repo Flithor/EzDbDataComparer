@@ -47,7 +47,7 @@ namespace DataAccessLib.DataAccessor
 
                 using (var adapter = new MySqlDataAdapter($"SELECT * FROM {tableName}", conn))
                 {
-                    adapter.FillSchema(dt, SchemaType.Mapped);
+                    adapter.FillSchema(dt, SchemaType.Source);
                     //d.Tables[tableName].Columns.Cast<DataColumn>().Where(c => c.DataType.Equals(typeof(DateTime))).ToList().ForEach(c => c.DataType = typeof(MySqlDateTime));
                     adapter.Fill(dt);
                     dt.TableName = tableName;

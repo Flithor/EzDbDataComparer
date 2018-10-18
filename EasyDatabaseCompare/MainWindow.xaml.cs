@@ -1,25 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using ComparisonLib;
+using EasyDatabaseCompare.UserControls;
+using EasyDatabaseCompare.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using EasyDatabaseCompare.ViewModel;
-using EasyDatabaseCompare.Model;
-using EasyDatabaseCompare.UserControls;
 using System.Windows.Data;
-using ComparisonLib;
+using System.Windows.Input;
 
 namespace EasyDatabaseCompare
 {
@@ -222,25 +214,32 @@ namespace EasyDatabaseCompare
                     //    .Select(col => col.ColumnName);
                     var dv = DetailDataOverview.ItemsSource as DataView;
                     if (e.Key == Key.Escape) tb.Text = string.Empty;
-                    if (string.IsNullOrEmpty(tb.Text))
+                    try
                     {
-                        dv.RowFilter = string.Empty;
+                        if (string.IsNullOrEmpty(tb.Text))
+                        {
+                            dv.RowFilter = string.Empty;
+                        }
+                        else if (DetailFilterMode.IsChecked.Value)
+                            try
+                            {
+                                dv.RowFilter = tb.Text;
+                            }
+                            catch (Exception)
+                            {
+                                TopMsg.ShowMessage("Non-compliant \"where\" clause");
+                            }
+                        else if (tb.Text.ToLower() == "`null")
+                            dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR {col} is null"));
+                        else if (tb.Text == "` ")
+                            dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR CONVERT({col}, System.String) = ''"));
+                        else
+                            dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%'"));
                     }
-                    else if (DetailFilterMode.IsChecked.Value)
-                        try
-                        {
-                            dv.RowFilter = tb.Text;
-                        }
-                        catch (Exception)
-                        {
-                            TopMsg.ShowMessage("Non-compliant \"where\" clause");
-                        }
-                    else if (tb.Text.ToLower() == "`null")
-                        dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR {col} is null"));
-                    else if (tb.Text== "` ")
-                        dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%' OR CONVERT({col}, System.String) = ''"));
-                    else
-                        dv.RowFilter = string.Join(" OR ", cols.Select(col => $"CONVERT({col}, System.String) like '%{tb.Text}%'"));
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"{ex.Message}\r\n{ex.StackTrace}\r\n==========\r\n{ex.InnerException}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                     break;
             }
         }

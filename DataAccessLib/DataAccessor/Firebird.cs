@@ -35,7 +35,7 @@ namespace DataAccessLib.DataAccessor
                 conn.Open();
                 foreach (var tableName in tableNames)
                 {
-                    using (var adapter = new FbDataAdapter($"SELECT * FROM [{tableName}]", conn))
+                    using (var adapter = new FbDataAdapter($"SELECT * FROM {tableName}", conn))
                     {
                         adapter.FillSchema(d, SchemaType.Mapped, tableName);
                         //d.Tables[tableName].Columns.Cast<DataColumn>().Where(c => c.DataType.Equals(typeof(DateTime))).ToList().ForEach(c => c.DataType = typeof(MySqlDateTime));
@@ -53,7 +53,7 @@ namespace DataAccessLib.DataAccessor
             using (var conn = new FbConnection(ConnStr))
             {
                 conn.Open();
-                using (var adapter = new FbDataAdapter($"SELECT * FROM [{tableName}]", conn))
+                using (var adapter = new FbDataAdapter($"SELECT * FROM {tableName}", conn))
                 {
                     adapter.FillSchema(dt, SchemaType.Mapped);
                     adapter.Fill(dt);
