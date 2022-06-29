@@ -46,3 +46,5 @@ If possible, please try to use design pattern to extend it
 If not, it does not matter
 
 Used: [Rx](https://github.com/dotnet/reactive), [Ninject](https://github.com/ninject/Ninject)
+
+**It may stop improving indefinitely as I have left my job that required this tool.**
